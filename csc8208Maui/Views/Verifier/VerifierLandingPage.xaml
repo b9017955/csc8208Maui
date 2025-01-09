@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<TabbedPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:local="clr-namespace:csc8208Maui.Views.Verifier"
+            x:Class="csc8208Maui.Views.Verifier.VerifierLandingPage"
+            xmlns:android="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.AndroidSpecific;assembly=Microsoft.Maui.Controls"
+            android:TabbedPage.ToolbarPlacement="Bottom"
+            Style="{StaticResource Key=TabStyle}">
+
+    <TabbedPage.ToolbarItems>
+            <ToolbarItem IconImageSource="icon_settings.png" Command="{Binding SettingsCommand}"/>
+    </TabbedPage.ToolbarItems>
+  <!--Pages can be added as references or inline-->
+    <!--<ContentPage Title="Silly Sausage"/>🗿-->
+    <ContentPage IconImageSource="icon_scan.png" Padding="20, 10, 20, 0" Style="{StaticResource ContentStyle}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Label Text="Todays Events:"
+                   Grid.Row="0"
+                   Margin="0,0,0,10"/>
+            <ListView x:Name="ListOfTodaysEvents" 
+                  ItemsSource="{Binding TodaysEventsList}" 
+                  RowHeight="200"
+                  SelectedItem="{Binding SelectedEvent, Mode=TwoWay}"
+                      Grid.Row="1">
+
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <ViewCell>
+                            <StackLayout>
+                                <Label Text="{Binding DoorsOpen}"/>
+                                <Frame BorderColor="Black"
+                                    CornerRadius="10"
+                                    >
+                                    <StackLayout Margin="10, 10, 10, 10">
+                                        <StackLayout Orientation="Horizontal">
+                                            <Label Text="{Binding Artist}" 
+                                                   TextColor="#F2561D"
+                                                   FontSize="Large"
+                                                   HorizontalOptions="StartAndExpand"/>
+                                            <Label Text="{Binding MusicGenre}"
+                                                   TextColor="#F2561D"
+                                                   HorizontalOptions="EndAndExpand"/>
+                                        </StackLayout>
+                                        <Label Text="{Binding Location}"/>
+                                        <Label Text="{Binding DoorsOpen}"/>
+                                    </StackLayout>
+                                </Frame>
+                            </StackLayout>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        </Grid>
+        
+    </ContentPage>
+    <ContentPage IconImageSource="icon_admin.png" Style="{StaticResource ContentStyle}"><!--Admin page-->
+    </ContentPage>
+    
+</TabbedPage>

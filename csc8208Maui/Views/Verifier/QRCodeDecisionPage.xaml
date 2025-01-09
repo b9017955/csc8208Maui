@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="csc8208Maui.Views.Verifier.QRCodeDecisionPage"
+             Title="Verifier Mode"
+             Style="{StaticResource ContentStyle}">
+    
+    <ContentPage.Content>
+        <Grid Margin="25,25,25,30">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="15"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Label Text="{Binding SelectedEvent.DoorsOpen}" Grid.Row="0"/>
+            <Frame BorderColor="Black"
+                   Grid.Row="1"
+                   CornerRadius="10">
+                <StackLayout Margin="10,10,10,10">
+                    <StackLayout Orientation="Horizontal">
+                        <Label Text="{Binding SelectedEvent.Artist}" 
+                               TextColor="#F2561D"
+                               FontSize="Large"
+                               FontAttributes="Bold"
+                               HorizontalOptions="StartAndExpand"/>
+                        <Label Text="{Binding SelectedEvent.MusicGenre}"
+                               TextColor="#F2561D"
+                               HorizontalOptions="EndAndExpand"/>
+                    </StackLayout>
+                    <Label Text="{Binding SelectedEvent.Location}"/>
+                    <Label Text="{Binding SelectedEvent.DoorsOpen}"
+                           Margin="0,0,0,20"/>
+                    <Image Source="Flat_cross_icon.png" WidthRequest="275">
+                        <Image.Triggers>
+                            <DataTrigger TargetType="Image" Binding="{Binding Decision}" Value="1">
+                                <Setter Property="Source" Value="Flat_tick_icon.png"/>
+                            </DataTrigger>
+                            <DataTrigger TargetType="Image" Binding="{Binding Decision}" Value="2">
+                                <Setter Property="Source" Value="Flat_exclamation_icon.png"/>
+                            </DataTrigger>
+                        </Image.Triggers>
+                    </Image>
+                    <Label Text="Denied"
+                           HorizontalTextAlignment="Center"
+                           FontSize="Large"
+                           FontAttributes="Bold"
+                           Margin="0,0,0,20">
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label" Binding="{Binding Decision}" Value="1">
+                                <Setter Property="Text" Value="Approved"/>
+                            </DataTrigger>
+                            <DataTrigger TargetType="Label" Binding="{Binding Decision}" Value="2">
+                                <Setter Property="Text" Value="Further Action Required"/>
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                    <Label Text="{Binding DecisionDetails}"
+                           HorizontalTextAlignment="Center"/>
+                </StackLayout>
+            </Frame>
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>

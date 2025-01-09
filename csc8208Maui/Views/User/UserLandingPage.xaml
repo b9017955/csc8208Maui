@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+            xmlns:android="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.AndroidSpecific;assembly=Microsoft.Maui.Controls"
+            android:TabbedPage.ToolbarPlacement="Bottom"
+            x:Class="csc8208Maui.Views.User.UserLandingPage"
+            xmlns:local="clr-namespace:csc8208Maui.Views.User;assembly=csc8208Maui"
+            Style="{StaticResource TabStyle}"
+            >
+    <!--Pages can be added as references or inline-->
+    <!--<TabbedPage.ToolbarItems>
+        <ToolbarItem IconImageSource="icon_settings.png" Command="{Binding SettingsCommand}"/>
+    </TabbedPage.ToolbarItems>-->
+    <TabBar>
+        <Tab>
+            <ShellContent Title="Buy Tickets" Icon="icon_basket" ContentTemplate="{DataTemplate local:BuyTickets}"/>
+            <ShellContent Title="Home" Icon="icon_home" ContentTemplate="{DataTemplate local:Home}"/>
+            <ShellContent Title="Account" Icon="icon_ticket" ContentTemplate="{DataTemplate local:UserAccount}"/>
+        </Tab>
+    </TabBar>
+    
+    <!--
+    <local:BuyTickets IconImageSource="icon_basket" TabIndex="0"/>
+    <local:Home IconImageSource="icon_home" TabIndex="1"/>
+    <local:UserAccount IconImageSource="icon_ticket" TabIndex="2"/>
+    -->
+</Shell>
+ 

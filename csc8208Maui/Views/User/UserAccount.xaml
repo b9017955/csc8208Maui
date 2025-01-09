@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="csc8208Maui.Views.User.UserAccount"
+             Style="{StaticResource ContentStyle}">
+    <ListView x:Name="ListOfTickets" 
+                  ItemsSource="{Binding Tickets}" 
+                  RowHeight="500">
+
+        <ListView.ItemTemplate>
+            <DataTemplate>
+                <ViewCell>
+                    <Frame BackgroundColor="White" BorderColor="Black" Margin="21" CornerRadius="15">
+                        <StackLayout Margin="10, 5, 10, 5">
+                            <StackLayout Orientation="Horizontal">
+                                <Label Text="{Binding Artist}" 
+                                   TextColor="#F23005"
+                                   FontSize="Large"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="StartAndExpand"/>
+                                <Label Text="{Binding MusicGenre}"
+                                    TextColor="#F2561D"
+                                    HorizontalOptions="EndAndExpand"
+                                    VerticalOptions="Center"/>
+                            </StackLayout>
+                            <Label Text="{Binding EventLocation}"/>
+                            <Label Text="{Binding DoorsOpen}"/>
+                            <Label Text="{Binding EventName}"/>
+                            <!--<forms:ZXingBarcodeImageView
+                                BarcodeValue="{Binding QRCode, FallbackValue='1'}"
+                                BarcodeFormat="QR_CODE"
+                                HorizontalOptions="FillAndExpand"
+                                VerticalOptions="FillAndExpand"
+                                BackgroundColor="White">
+                                <forms:ZXingBarcodeImageView.BarcodeOptions>
+                                    <zxcm:EncodingOptions Width="400" Height="400" />
+                                </forms:ZXingBarcodeImageView.BarcodeOptions>
+                            </forms:ZXingBarcodeImageView>-->
+                            <Button ImageSource="icon_fullscreen.png" Scale="0.2" HeightRequest="35" WidthRequest="35" BackgroundColor="White" HorizontalOptions="Start">
+                            </Button>
+                        </StackLayout>
+                    </Frame>
+                </ViewCell>
+            </DataTemplate>
+        </ListView.ItemTemplate>
+    </ListView>
+</ContentPage>

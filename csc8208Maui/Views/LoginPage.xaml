@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://schemas.microsoft.com/dotnet/2021/maui/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             x:Class="csc8208Maui.Views.LoginPage"
+             Shell.NavBarIsVisible="False"
+             Style="{StaticResource ContentStyle}">
+    <ContentPage.Content>
+        <StackLayout Padding="10,0,10,0" VerticalOptions="Center">
+            <!-- LOGO-->
+            <Image Source="Logo" HeightRequest="275"/>
+            <Label Text="Welcome to our Ticketing App! Please login or register below." HorizontalOptions="Center" WidthRequest="200"/>
+            <!-- LOGIN-->
+
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                </Grid.RowDefinitions>
+
+
+
+            <BoxView Color="Black" Grid.Row="1"/>
+            <BoxView Color="#FFFFFF" Margin="1" Grid.Row="1"/>
+                <Entry x:Name="Username" 
+                   Text="{Binding Username}" 
+                   Grid.Row="1" 
+                   Placeholder="Username" 
+                   Style="{StaticResource EntryStyle}"
+                   BackgroundColor="{Binding UsernameEntryColour}"/>
+
+
+                <BoxView Color="Black" Grid.Row="4"/>
+            <BoxView Color="#FFFFFF" Margin="1" Grid.Row="4"/>
+                <Entry x:Name="Password" 
+                       Text="{Binding Password}" 
+                       Grid.Row="4" 
+                       Placeholder="Password" 
+                       IsPassword="True" 
+                       Style="{StaticResource EntryStyle}"
+                       BackgroundColor="{Binding PasswordEntryColour}"/>
+            </Grid>            
+            
+            
+            <Button VerticalOptions="Center" 
+                    Text="Login"
+                    Command="{Binding LoginCommand}"
+                    Style="{StaticResource LoginButton}"
+                    Margin="0,50,0,0"/>
+            
+            <!--<Button VerticalOptions="Center" 
+                    Text="User Login (Temp)"
+                    Command="{Binding UserLoginCommand}"
+                    Style="{StaticResource LoginButton}"
+                    />-->
+            
+            <!-- REGISTER-->
+            <Button VerticalOptions="Center" 
+                    Text="Sign Up"
+                    Command="{Binding RegisterCommand}"
+                    Style="{StaticResource LoginButton}"
+                    />
+            
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

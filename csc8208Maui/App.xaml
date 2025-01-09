@@ -1,0 +1,62 @@
+﻿<?xml version = "1.0" encoding = "UTF-8" ?>
+<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:csc8208Maui"
+             x:Class="csc8208Maui.App">
+    <Application.Resources>
+        <ResourceDictionary>
+            <Color x:Key="Primary">#2196F3</Color>
+
+            <Style x:Key="ContentStyle" TargetType="ContentPage">
+                <Setter Property="BackgroundColor" Value="#F2F1F6"></Setter>
+            </Style>
+
+            <Style x:Key="TabStyle" TargetType="TabbedPage">
+                <Setter Property="BarBackgroundColor" Value="#FFFFFF"></Setter>
+                <Setter Property="SelectedTabColor" Value="#022026"></Setter>
+                <Setter Property="UnselectedTabColor" Value="#646464"></Setter>
+            </Style>
+
+            <Style x:Key="EntryStyle" TargetType="Entry">
+                <Setter Property="TextColor" Value="#022026"></Setter>
+                <Setter Property="Margin" Value="4,0,0,0"></Setter>
+                <Setter Property="PlaceholderColor" Value="#F2561D"></Setter>
+            </Style>
+
+            <Style x:Key="LoginButton" TargetType="Button">
+                <Setter Property="TextColor" Value="#F2561D"></Setter>
+                <Setter Property="BorderWidth" Value="1"></Setter>
+                <Setter Property="BorderColor" Value="#022026"></Setter>
+                <Setter Property="BackgroundColor" Value="#FFFFFF"></Setter>
+                <Setter Property="FontAttributes" Value="Bold"></Setter>
+                <Setter Property="HeightRequest" Value="50"></Setter>
+                <Setter Property="WidthRequest" Value="130"></Setter>
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="#FFFFFF" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Disabled">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="#332196F3" />
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+
+            <Style x:Key="SettingsButton" TargetType="Button" BasedOn="{StaticResource LoginButton}">
+                <Setter Property="WidthRequest" Value="500"></Setter>
+                <Setter Property="TextColor" Value="#022026"></Setter>
+                <Setter Property="FontAttributes" Value="None"></Setter>
+                <Setter Property="Padding" Value="0"></Setter>
+                <Setter Property="Margin" Value="0"></Setter>
+            </Style>
+
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

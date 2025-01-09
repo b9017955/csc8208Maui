@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="csc8208Maui.Views.User.BuyTickets"
+             Style="{StaticResource ContentStyle}">
+    <StackLayout>
+        <StackLayout Orientation="Horizontal" Margin="10,10,10,0">
+            <Label Text="Category:" FontSize="Medium"/>
+            <Label Text="Music" FontAttributes="Bold" FontSize="Medium"/>
+            <Label Text="Filter" TextColor="#15A0BF" HorizontalOptions="EndAndExpand" Padding="5"/>
+        </StackLayout>
+            <ListView x:Name="ListOfEvents" 
+                  ItemsSource="{Binding Events}" 
+                  RowHeight="175"
+                  SelectedItem="{Binding SelectedEvent, Mode=TwoWay}">
+        
+        <ListView.ItemTemplate>
+            <DataTemplate>
+                <ViewCell>
+                    <Frame BackgroundColor="White" BorderColor="Black" Margin="21" CornerRadius="15" Padding="5">
+                        <StackLayout Margin="15, 5, 15, 5">
+                            <StackLayout Orientation="Horizontal">
+                                <Label Text="{Binding Artist}" 
+                                   TextColor="#F23005"
+                                   FontSize="Large"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="StartAndExpand"/>
+                                <Label Text="{Binding MusicGenre}"
+                                    TextColor="#F2561D"
+                                    HorizontalOptions="EndAndExpand"
+                                    VerticalOptions="Center"/>
+                            </StackLayout>
+                            <Label Text="{Binding Location}"/>
+                            <Label Text="{Binding DoorsOpen}"/>
+                            <Label Text="Buy Now" Background="White" TextColor="#15A0BF" HorizontalOptions="End"/>
+                        </StackLayout>
+                    </Frame>
+                </ViewCell>
+            </DataTemplate>
+        </ListView.ItemTemplate>
+
+    </ListView>
+    </StackLayout>
+</ContentPage>
