@@ -4,20 +4,12 @@ using System.Text;
 
 namespace csc8208Maui.Models
 {
-    public class Account
+    public class Account(string firstName, string secondName, string emailAddress, bool verifier)
     {
-        public string firstName;
-        public string secondName;
-        public string emailAddress;
-        public bool verifier;
-        public string appPublicKey;
-
-        public Account(string firstName, string secondName, string emailAddress, bool verifier)
-        {
-            this.firstName = firstName;
-            this.secondName = secondName;
-            this.emailAddress = emailAddress;
-            this.verifier = verifier;
-        }
+        public string firstName = firstName;
+        public string secondName = secondName;
+        public string emailAddress = emailAddress;
+        public bool verifier = verifier;
+        public string appPublicKey="";
     }
 }
