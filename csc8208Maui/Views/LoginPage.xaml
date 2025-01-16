@@ -10,7 +10,7 @@
     <ContentPage.Content>
         <StackLayout Padding="10,0,10,0" VerticalOptions="Center">
             <!-- LOGO-->
-            <Image Source="Logo" HeightRequest="275"/>
+            <Image Source="logo" HeightRequest="275"/>
             <Label Text="Welcome to our Ticketing App! Please login or register below." HorizontalOptions="Center" WidthRequest="200"/>
             <!-- LOGIN-->
 
