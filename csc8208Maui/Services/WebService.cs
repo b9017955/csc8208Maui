@@ -27,7 +27,7 @@ namespace csc8208Maui.Services
 {
     public static class WebService
     {
-        public static string BaseURL= "http://0.0.0.0:34648";// "https://18.169.193.100/";
+        public static string BaseURL= "https://10.0.2.2:7288/api/";// "https://18.169.193.100/";
         static HttpClient client;
         public static Account account;
         public static string connectionFailureMessage = "Failed to connect to server, check network settings. Some features on this app will be unavailable until you reconnect to the internet.";
@@ -55,14 +55,33 @@ namespace csc8208Maui.Services
 
         static WebService()
         {
+            //Production
+            // var handler = new HttpClientHandler();
+            // handler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;//In production we would have our certificate signed by a CA
+            // client = new HttpClient(handler)
+            // {
+            //     BaseAddress = new Uri(BaseURL)
+            // };
+
+            //----------------------------------------
+            //Debug DO NOT USE IN PRODUCTION
+            //custom handler ignores SSL error caused by server's self-signed certificate
             var handler = new HttpClientHandler();
-            handler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;//In production we would have our certificate signed by a CA
+
+            #if DEBUG
+            handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) =>
+            {
+                if (cert != null && cert.Issuer.Equals("CN=localhost"))
+                    return true;
+                return errors == System.Net.Security.SslPolicyErrors.None;
+            };
+            #endif
             client = new HttpClient(handler)
             {
                 BaseAddress = new Uri(BaseURL)
             };
-            //debug
             newAppSignatureKeyMaterialRequired = true;
+            //----------------------------------------
             //Check if secure storage contains key material for app signature
             parameters = new ECDomainParameters(curve.Curve, curve.G, curve.N, curve.H);
             if (SecureStorage.GetAsync("serialisedPrivateKeyInfo").Result != null && SecureStorage.GetAsync("serialisedPublicKeyInfo").Result != null)
@@ -181,6 +200,11 @@ namespace csc8208Maui.Services
             newAppSignatureKeyMaterialRequired = false;
         }
 
+        //Testing
+        public static void SanityCheck(){
+            var testResponse = client.GetAsync("Login/test").Result;
+            Console.WriteLine(testResponse);
+        }
         public static (bool success, string message) Register(string emailAddress, string password, string firstName, string secondName, bool verifier)
         {
             string serialisedPublicKey = SecureStorage.GetAsync("serialisedPublicKeyInfo").Result;

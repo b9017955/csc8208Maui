@@ -183,6 +183,8 @@ namespace csc8208Maui.ViewModels
 
         private async void OnSignUpClicked(object obj)
         {
+            //WebService.SanityCheck();
+            
             Console.WriteLine("SIGN UP CLICKED");
             bool problems = false;
             EmailEntryColour = emailAddress == null ? Colors.Red : null;
