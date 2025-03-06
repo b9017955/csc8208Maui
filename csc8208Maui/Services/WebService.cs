@@ -207,19 +207,21 @@ namespace csc8208Maui.Services
         }
         public static (bool success, string message) Register(string emailAddress, string password, string firstName, string secondName, bool verifier)
         {
-            string serialisedPublicKey = SecureStorage.GetAsync("serialisedPublicKeyInfo").Result;
-            var registrationDataPayload = new { 
-                email = emailAddress, 
-                password = password, 
-                first_name = firstName, 
-                second_name = secondName, 
-                account_type = verifier,
-            };
-            var registrationJSON = JsonConvert.SerializeObject(registrationDataPayload);
-            var content = new StringContent(registrationJSON, Encoding.UTF8, "application/json");
+            //string serialisedPublicKey = SecureStorage.GetAsync("serialisedPublicKeyInfo").Result;
+            var accountDTO = new AccountDTO();
+            accountDTO.email = emailAddress;
+            accountDTO.password = password;
+            accountDTO.firstName = firstName;
+            accountDTO.surname = secondName;
+            accountDTO.type = verifier ? AccountDTO.AccountType.ADMIN : AccountDTO.AccountType.USER;
+            accountDTO.appPublicKey="";
+            
+            var registrationPayload = JsonConvert.SerializeObject(accountDTO);
+            Console.WriteLine(registrationPayload);
+            var content = new StringContent(registrationPayload, Encoding.UTF8, "application/json");
             try
             {
-                var response = client.PostAsync("CreateAccount", content).Result;
+                var response = client.PostAsync("Login/register", content).Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string responseBody = response.Content.ReadAsStringAsync().Result;
