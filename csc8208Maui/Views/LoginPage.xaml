@@ -66,6 +66,13 @@
                     Command="{Binding RegisterCommand}"
                     Style="{StaticResource LoginButton}"
                     />
+
+            <!-- DEBUG NAVIGATION -->
+            <Button VerticalOptions="Center" 
+                    Text="DEBUG NAVIGATION"
+                    Command="{Binding DebugNavigateHomeCommand}"
+                    Style="{StaticResource LoginButton}"
+                    Margin="0,50,0,0"/>
             
         </StackLayout>
     </ContentPage.Content>

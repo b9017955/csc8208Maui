@@ -74,21 +74,23 @@ namespace csc8208Maui.ViewModels
         public Command LoginCommand { get; }
         public Command UserLoginCommand { get; }
         public Command RegisterCommand { get; }
+        public Command DebugNavigateHomeCommand { get; }
 
         public LoginViewModel()
         {
             LoginCommand = new Command(OnLoginClicked);
             RegisterCommand = new Command(OnRegisterClicked);
+            DebugNavigateHomeCommand = new Command(OnDebugNavigateHomeClicked);
 
             //Check for locally stored account info for offline use
             string serialisedAccount = SecureStorage.GetAsync("account").Result;
-            
+
             string JWT = SecureStorage.GetAsync("JWT").Result;
             if (WebService.account != null && JWT != null)
             {
                 WebService.account = JsonConvert.DeserializeObject<Account>(serialisedAccount);
                 WebService.SetHTTPHeaders(JWT);
-                if (!WebService.CheckConnectionToServer())
+                if (!WebService.CheckConnectionToInternet())
                 {
                     Console.WriteLine(WebService.connectionFailureMessage);
                     //Needs replacing
@@ -103,13 +105,20 @@ namespace csc8208Maui.ViewModels
                     Shell.Current.GoToAsync("//user");//Go to user landing page
                 }
             }
+
+
+        }
+        
+        private async void OnDebugNavigateHomeClicked(object obj)
+        {
+            await Shell.Current.GoToAsync("//user");
         }
 
         private async void OnLoginClicked(object obj)
         {
             //WebService.InitialiseNewAppSignature();
             //Debug code==========
-            Console.WriteLine($"Username: {username}, Password: {password}");
+            /* Console.WriteLine($"Username: {username}, Password: {password}");
             if (username!=null && username.Equals("user"))
             {
                 SecureStorage.Remove("tickets");
@@ -122,14 +131,14 @@ namespace csc8208Maui.ViewModels
                 await Shell.Current.GoToAsync("//verifier");
             }
             
-            return;
+            return; */
             //====================
 
-            (bool success, string message) loginResult = WebService.Login(username, password);
+            (bool success, string message) loginResult = await WebService.LoginAsync(username, password);
 
             if (loginResult.success)
             {
-                WebService.account = WebService.GetAccountInfo();
+                //WebService.account = WebService.GetAccountInfo();
                 if (WebService.account.verifier)
                 {
                     await Shell.Current.GoToAsync("//verifier");//Go to verifier landing page

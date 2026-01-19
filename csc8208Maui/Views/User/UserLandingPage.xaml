@@ -13,9 +13,9 @@
     </TabbedPage.ToolbarItems>-->
     <TabBar>
         <Tab>
+            <ShellContent Title="Account" Icon="icon_ticket" ContentTemplate="{DataTemplate local:UserAccount}"/>
             <ShellContent Title="Buy Tickets" Icon="icon_basket" ContentTemplate="{DataTemplate local:BuyTickets}"/>
             <ShellContent Title="Home" Icon="icon_home" ContentTemplate="{DataTemplate local:Home}"/>
-            <ShellContent Title="Account" Icon="icon_ticket" ContentTemplate="{DataTemplate local:UserAccount}"/>
         </Tab>
     </TabBar>
     

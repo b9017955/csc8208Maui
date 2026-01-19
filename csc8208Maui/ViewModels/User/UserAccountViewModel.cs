@@ -44,8 +44,8 @@ namespace csc8208Maui.ViewModels.User
             LogoutCommand = new Command(OnSignOutButtonClicked);
             SettingsCommand = new Command(OnSettingsButtonClicked);
             
-            SecureStorage.SetAsync("DEBUGPUBLICKEY", SecureStorage.GetAsync("serialisedPublicKeyInfo").Result);//for debugging purposes only
-            UpdateTickets("INITIAL_CALL");
+            //SecureStorage.SetAsync("DEBUGPUBLICKEY", SecureStorage.GetAsync("serialisedPublicKeyInfo").Result);//for debugging purposes only
+            //UpdateTickets("INITIAL_CALL");
 
             //DebugGenerateQRCode();
 

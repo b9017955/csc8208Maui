@@ -22,6 +22,8 @@ using System.Net.NetworkInformation;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using Microsoft.Maui.Storage;
+using System.Net;
+using System.Net.Http.Json;
 
 namespace csc8208Maui.Services
 {
@@ -68,19 +70,20 @@ namespace csc8208Maui.Services
             //custom handler ignores SSL error caused by server's self-signed certificate
             var handler = new HttpClientHandler();
 
-            #if DEBUG
+            //#if DEBUG
             handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) =>
             {
                 if (cert != null && cert.Issuer.Equals("CN=localhost"))
                     return true;
                 return errors == System.Net.Security.SslPolicyErrors.None;
             };
-            #endif
+            //#endif
             client = new HttpClient(handler)
             {
                 BaseAddress = new Uri(BaseURL)
             };
             newAppSignatureKeyMaterialRequired = true;
+            
             //----------------------------------------
             //Check if secure storage contains key material for app signature
             parameters = new ECDomainParameters(curve.Curve, curve.G, curve.N, curve.H);
@@ -205,6 +208,7 @@ namespace csc8208Maui.Services
             var testResponse = client.GetAsync("Login/test").Result;
             Console.WriteLine(testResponse);
         }
+        
         public static (bool success, string message) Register(string emailAddress, string password, string firstName, string secondName, bool verifier)
         {
             //string serialisedPublicKey = SecureStorage.GetAsync("serialisedPublicKeyInfo").Result;
@@ -239,36 +243,42 @@ namespace csc8208Maui.Services
             }
         }
 
-        public static (bool success, string message) Login(string username, string password)
+        public static async Task<(bool success, string message)> LoginAsync(string username, string password)
         {
-            bool online = CheckConnectionToServer();
+            bool online = CheckConnectionToInternet();
+            SanityCheck();
             if (!online)
             {
                 return (false, connectionFailureMessage);
             }
 
-            var authDataPayload = new { email = username, password = password };
+            var authDataPayload = new { username, password };
             var authDataJSON = JsonConvert.SerializeObject(authDataPayload);
             var content = new StringContent(authDataJSON, Encoding.UTF8, "application/json");
 
             try
             {
-                var response = client.PostAsync("SignIn", content).Result;
-                if (response.IsSuccessStatusCode)
+                var response = await Task.Run(() => client.PostAsync("Login", content).Result);
+                if (response.StatusCode.Equals(HttpStatusCode.OK))
                 {
                     string responseBody = response.Content.ReadAsStringAsync().Result;
-                    string JWT = "";
-                    SecureStorage.SetAsync("JWT", JWT);
+                    string JWT = responseBody;
+                    Console.WriteLine($"JWT={JWT}");
+                    await SecureStorage.SetAsync("JWT", JWT);
                     SetHTTPHeaders(JWT);
                     // User may be loging in to a new device
                     if (newAppSignatureKeyMaterialRequired)
                     {
                         InitialiseNewAppSignature();
-                        var serialisedPublicKey = SecureStorage.GetAsync("serialisedPublicKeyInfo").Result;
-                        var keyMaterial = new { app_public_key = serialisedPublicKey };
+                        var clientPublicKey = await Task.Run(() => SecureStorage.GetAsync("serialisedPublicKeyInfo").Result);
+                        var key = clientPublicKey;
+                        var keyMaterial = new {key};
                         var keyMaterialJSON = JsonConvert.SerializeObject(keyMaterial);
                         var keyUpdateContent = new StringContent(keyMaterialJSON, Encoding.UTF8, "application/json");
-                        var keyUpdateResponse = client.PostAsync("UpdatePublicKey", keyUpdateContent);
+                        Console.WriteLine($"PAYLOAD={keyUpdateContent}");
+                        var keyUpdateResponse = client.PostAsync("Login/submitClientPublicKey", keyUpdateContent);
+                        
+                        Console.WriteLine($"Response from submitPublicKey={keyUpdateResponse.Result.StatusCode}");
                     }
                     return (true, loginSuccessMessage);
                 }
@@ -337,15 +347,21 @@ namespace csc8208Maui.Services
             
         }
 
-        public static bool CheckConnectionToServer()
+        public static bool CheckConnectionToInternet()
         {
             var pingServer = new Ping();
             var pingOptions = new PingOptions { DontFragment = true };
             var buffer = Encoding.ASCII.GetBytes("ping");
             var timeout = 120;
-            var reply = pingServer.SendPingAsync(WebService.BaseURL, timeout, buffer, pingOptions).Result;
-            //App is online
-            return reply.Status == IPStatus.Success;
+            try
+            {
+                var reply = pingServer.SendPingAsync("google.com", timeout).Result;
+                return reply.Status == IPStatus.Success;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public static Account GetAccountInfo()

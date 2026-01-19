@@ -3,9 +3,18 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="csc8208Maui.Views.User.UserAccount"
              Style="{StaticResource ContentStyle}">
-    <ListView x:Name="ListOfTickets" 
-                  ItemsSource="{Binding Tickets}" 
-                  RowHeight="500">
+    
+    <StackLayout Margin="20,35,20,25">
+        <Label Text="Forename"/>
+        <Label Text="Surname"/>
+        <Label Text="Email"/>
+    </StackLayout>
+    
+    <!--
+    <ListView 
+        x:Name="ListOfTickets" 
+        ItemsSource="{Binding Tickets}" 
+        RowHeight="500">
 
         <ListView.ItemTemplate>
             <DataTemplate>
@@ -26,7 +35,7 @@
                             <Label Text="{Binding EventLocation}"/>
                             <Label Text="{Binding DoorsOpen}"/>
                             <Label Text="{Binding EventName}"/>
-                            <!--<forms:ZXingBarcodeImageView
+                            <forms:ZXingBarcodeImageView
                                 BarcodeValue="{Binding QRCode, FallbackValue='1'}"
                                 BarcodeFormat="QR_CODE"
                                 HorizontalOptions="FillAndExpand"
@@ -35,7 +44,7 @@
                                 <forms:ZXingBarcodeImageView.BarcodeOptions>
                                     <zxcm:EncodingOptions Width="400" Height="400" />
                                 </forms:ZXingBarcodeImageView.BarcodeOptions>
-                            </forms:ZXingBarcodeImageView>-->
+                            </forms:ZXingBarcodeImageView>
                             <Button ImageSource="icon_fullscreen.png" Scale="0.2" HeightRequest="35" WidthRequest="35" BackgroundColor="White" HorizontalOptions="Start">
                             </Button>
                         </StackLayout>
@@ -44,4 +53,6 @@
             </DataTemplate>
         </ListView.ItemTemplate>
     </ListView>
+    -->
+
 </ContentPage>
