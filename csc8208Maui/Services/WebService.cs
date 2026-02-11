@@ -24,6 +24,7 @@ using Newtonsoft.Json.Linq;
 using Microsoft.Maui.Storage;
 using System.Net;
 using System.Net.Http.Json;
+using System.Diagnostics;
 
 namespace csc8208Maui.Services
 {
@@ -218,7 +219,6 @@ namespace csc8208Maui.Services
             accountDTO.firstName = firstName;
             accountDTO.surname = secondName;
             accountDTO.type = verifier ? AccountDTO.AccountType.ADMIN : AccountDTO.AccountType.USER;
-            accountDTO.appPublicKey="";
             
             var registrationPayload = JsonConvert.SerializeObject(accountDTO);
             Console.WriteLine(registrationPayload);
@@ -266,7 +266,7 @@ namespace csc8208Maui.Services
                     Console.WriteLine($"JWT={JWT}");
                     await SecureStorage.SetAsync("JWT", JWT);
                     SetHTTPHeaders(JWT);
-                    // User may be loging in to a new device
+                    // User may be logging in to a new device
                     if (newAppSignatureKeyMaterialRequired)
                     {
                         InitialiseNewAppSignature();
@@ -275,10 +275,15 @@ namespace csc8208Maui.Services
                         var keyMaterial = new {key};
                         var keyMaterialJSON = JsonConvert.SerializeObject(keyMaterial);
                         var keyUpdateContent = new StringContent(keyMaterialJSON, Encoding.UTF8, "application/json");
-                        Console.WriteLine($"PAYLOAD={keyUpdateContent}");
                         var keyUpdateResponse = client.PostAsync("Login/submitClientPublicKey", keyUpdateContent);
                         
-                        Console.WriteLine($"Response from submitPublicKey={keyUpdateResponse.Result.StatusCode}");
+                        //Console.WriteLine($"Response from submitPublicKey={keyUpdateResponse.Result.StatusCode}");
+                    }
+                    bool accountDownloadSuccess = GetAccountInfo();
+                    if (!accountDownloadSuccess)
+                    {
+                        //error getting accountDTO
+                        return (false, "Login successful but there was an error retrieving accountDTO");
                     }
                     return (true, loginSuccessMessage);
                 }
@@ -364,19 +369,23 @@ namespace csc8208Maui.Services
             }
         }
 
-        public static Account GetAccountInfo()
+        public static bool GetAccountInfo()
         {
-            var response = client.GetAsync("GetAccount").Result;
+            var response = client.GetAsync("Login/GetAccount").Result;
             if (response.IsSuccessStatusCode)
             {
                 var responseBody = response.Content.ReadAsStringAsync().Result;
-                Account deserialisedAccount = JsonConvert.DeserializeObject<Account>(responseBody);
-                return deserialisedAccount;
+                
+                AccountDTO accountDTO = JsonConvert.DeserializeObject<AccountDTO>(responseBody);
+                Console.WriteLine($"Account found! Account type {accountDTO.type} {accountDTO.firstName} {accountDTO.surname} {accountDTO.email}");
+                account = new Account(accountDTO.firstName, accountDTO.surname, accountDTO.email, accountDTO.type==AccountDTO.AccountType.ADMIN);
+                return true;
             }
             else
             {
                 //Invalid JWT
-                return null;
+                Console.WriteLine("Error from webserver; account not found.");
+                return false;
             }
         }
 

@@ -81,21 +81,21 @@ namespace csc8208Maui.ViewModels
             LoginCommand = new Command(OnLoginClicked);
             RegisterCommand = new Command(OnRegisterClicked);
             DebugNavigateHomeCommand = new Command(OnDebugNavigateHomeClicked);
-
-            //Check for locally stored account info for offline use
-            string serialisedAccount = SecureStorage.GetAsync("account").Result;
-
-            string JWT = SecureStorage.GetAsync("JWT").Result;
-            if (WebService.account != null && JWT != null)
+            if (!WebService.CheckConnectionToInternet())
             {
-                WebService.account = JsonConvert.DeserializeObject<Account>(serialisedAccount);
-                WebService.SetHTTPHeaders(JWT);
-                if (!WebService.CheckConnectionToInternet())
-                {
-                    Console.WriteLine(WebService.connectionFailureMessage);
-                    //Needs replacing
-                    //CrossToastPopUp.Current.ShowToastWarning(WebService.connectionFailureMessage);
-                }
+                Console.WriteLine(WebService.connectionFailureMessage);
+                //Needs replacing
+                //CrossToastPopUp.Current.ShowToastWarning(WebService.connectionFailureMessage);
+            }
+            //Check for locally stored account info for offline use
+            //string serialisedAccount = SecureStorage.GetAsync("account").Result;
+            //WebService.account = JsonConvert.DeserializeObject<Account>(serialisedAccount);
+            string JWT = SecureStorage.GetAsync("JWT").Result;
+            WebService.SetHTTPHeaders(JWT);
+            //WebService.GetAccountInfo();
+            
+            if(WebService.account is not null && JWT is not null)
+            {
                 if (WebService.account.verifier)
                 {
                     Shell.Current.GoToAsync("//verifier");//Go to verifier landing page
@@ -105,6 +105,10 @@ namespace csc8208Maui.ViewModels
                     Shell.Current.GoToAsync("//user");//Go to user landing page
                 }
             }
+            
+            
+            
+            
 
 
         }
@@ -145,20 +149,6 @@ namespace csc8208Maui.ViewModels
                 }
                 else
                 {
-                    (bool success, string message) updatePublicKeyResult = WebService.UpdatePublicKey();
-                    if(updatePublicKeyResult.success!=null && updatePublicKeyResult.message != null)
-                    {
-                        if (updatePublicKeyResult.success)
-                        {
-                            Console.WriteLine("updated the public key");
-                            //CrossToastPopUp.Current.ShowToastSuccess("Updated public key");
-                        }
-                        else
-                        {
-                            Console.WriteLine(updatePublicKeyResult.message);
-                            //CrossToastPopUp.Current.ShowToastError(updatePublicKeyResult.message);
-                        }
-                    }
                     await Shell.Current.GoToAsync("//user");//Go to user landing page
                 }
             }

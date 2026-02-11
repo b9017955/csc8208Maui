@@ -11,6 +11,5 @@
         public string email { get; set; }
         public string password { get; set; }
         public AccountType type { get; set; }
-        public string appPublicKey { get; set; }
     }
 
