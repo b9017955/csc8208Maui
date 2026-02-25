@@ -30,7 +30,7 @@ namespace csc8208Maui.Services
 {
     public static class WebService
     {
-        public static string BaseURL= "https://10.0.2.2:7288/api/";// "https://18.169.193.100/";
+        public static string BaseURL= "https://192.168.1.241:7288/api/";//"https://10.0.2.2:7288/api/";// "https://18.169.193.100/";
         static HttpClient client;
         public static Account account;
         public static string connectionFailureMessage = "Failed to connect to server, check network settings. Some features on this app will be unavailable until you reconnect to the internet.";

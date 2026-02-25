@@ -14,11 +14,19 @@ using Microsoft.Maui.Controls.Compatibility;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui;
 using Microsoft.Maui.Storage;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace csc8208Maui.ViewModels.User
 {
-    class UserAccountViewModel : BaseViewModel
+    partial class UserAccountViewModel : BaseViewModel
     {
+        [ObservableProperty]
+        string firstname;
+        [ObservableProperty]
+        string surname;
+        [ObservableProperty]
+        string email;
+
         private UserTickets userTickets = new UserTickets();
         private ObservableCollection<Ticket> tickets = new ObservableCollection<Ticket>();
         public ObservableCollection<Ticket> Tickets 
@@ -50,6 +58,9 @@ namespace csc8208Maui.ViewModels.User
             //DebugGenerateQRCode();
 
             StartTimer();
+            firstname = WebService.account.firstName;
+            surname = WebService.account.secondName;
+            email = WebService.account.emailAddress;
         }
 
         private void StartTimer()

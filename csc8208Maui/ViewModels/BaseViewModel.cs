@@ -7,10 +7,11 @@ using System.Runtime.CompilerServices;
 using Microsoft.Maui.Controls.Compatibility;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace csc8208Maui.ViewModels
 {
-    public class BaseViewModel : INotifyPropertyChanged
+    public partial class BaseViewModel : ObservableObject
     {
         public IDataStore<Item> DataStore => DependencyService.Get<IDataStore<Item>>();
 

@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:csc8208Maui.ViewModels.User"
+             x:DataType="viewmodel:UserAccountViewModel"
              x:Class="csc8208Maui.Views.User.UserAccount"
              Style="{StaticResource ContentStyle}">
     
     <StackLayout Margin="20,35,20,25">
-        <Label Text="Forename"/>
-        <Label Text="Surname"/>
-        <Label Text="Email"/>
+        <Label Text="{Binding Firstname}"/>
+        <Label Text="{Binding Surname}"/>
+        <Label Text="{Binding Email}"/>
     </StackLayout>
     
     <!--
