@@ -1,62 +1,84 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<TabbedPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:local="clr-namespace:csc8208Maui.Views.Verifier"
-            x:Class="csc8208Maui.Views.Verifier.VerifierLandingPage"
+<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
             xmlns:android="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.AndroidSpecific;assembly=Microsoft.Maui.Controls"
             android:TabbedPage.ToolbarPlacement="Bottom"
-            Style="{StaticResource Key=TabStyle}">
+            
+            x:Class="csc8208Maui.Views.Verifier.VerifierLandingPage"
+            xmlns:viewmodel="clr-namespace:csc8208Maui.ViewModels"
+            x:DataType="viewmodel:VerifierViewModel"
 
-    <TabbedPage.ToolbarItems>
-            <ToolbarItem IconImageSource="icon_settings.png" Command="{Binding SettingsCommand}"/>
-    </TabbedPage.ToolbarItems>
-  <!--Pages can be added as references or inline-->
-    <!--<ContentPage Title="Silly Sausage"/>🗿-->
-    <ContentPage IconImageSource="icon_scan.png" Padding="20, 10, 20, 0" Style="{StaticResource ContentStyle}">
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="30"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Label Text="Todays Events:"
-                   Grid.Row="0"
-                   Margin="0,0,0,10"/>
-            <ListView x:Name="ListOfTodaysEvents" 
-                  ItemsSource="{Binding TodaysEventsList}" 
-                  RowHeight="200"
-                  SelectedItem="{Binding SelectedEvent, Mode=TwoWay}"
-                      Grid.Row="1">
+            xmlns:local="clr-namespace:csc8208Maui;assembly=csc8208Maui"
+            xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.MAUI.Controls"
+            Style="{StaticResource TabStyle}"
+            >
+    <TabBar>
+        <Tab>
+            
+            <ContentPage IconImageSource="icon_scan.png" Padding="20, 10, 20, 0" Style="{StaticResource ContentStyle}">
+                <!--
+                    <Label Text="Todays Events:"
+                        Grid.Row="0"
+                    Margin="0,0,0,10"/> -->
 
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <ViewCell>
-                            <StackLayout>
-                                <Label Text="{Binding DoorsOpen}"/>
-                                <Frame BorderColor="Black"
-                                    CornerRadius="10"
-                                    >
-                                    <StackLayout Margin="10, 10, 10, 10">
-                                        <StackLayout Orientation="Horizontal">
-                                            <Label Text="{Binding Artist}" 
-                                                   TextColor="#F2561D"
-                                                   FontSize="Large"
-                                                   HorizontalOptions="StartAndExpand"/>
-                                            <Label Text="{Binding MusicGenre}"
-                                                   TextColor="#F2561D"
-                                                   HorizontalOptions="EndAndExpand"/>
-                                        </StackLayout>
-                                        <Label Text="{Binding Location}"/>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="2*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <zxing:CameraBarcodeReaderView
+                        x:Name="cameraBarcodeReaderView"
+                        IsDetecting="{Binding IsDetecting}"/>
+                    <CollectionView 
+                        x:Name="ListOfTodaysEvents"
+                        ItemsSource="{Binding TodaysEventsList}" 
+                        SelectedItem="{Binding SelectedEvent, Mode=TwoWay}"
+                        Grid.Row="1"
+                        SelectionMode="Single"
+                        >
+                                            
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate
+                                x:DataType="local:Models.Event">
+                                <Border Stroke="#022026"
+                                    StrokeLineCap="Round"
+                                    StrokeThickness="2">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="20,20,20,20" />
+                                    </Border.StrokeShape>
+                                    <StackLayout>
                                         <Label Text="{Binding DoorsOpen}"/>
+                                            <StackLayout Margin="10, 10, 10, 10">
+                                                <StackLayout Orientation="Horizontal">
+                                                    <Label Text="{Binding Artist}" 
+                                                        TextColor="#F2561D"
+                                                        FontSize="Large"
+                                                        HorizontalOptions="StartAndExpand"/>
+                                                    <Label Text="{Binding MusicGenre}"
+                                                        TextColor="#F2561D"
+                                                        HorizontalOptions="EndAndExpand"/>
+                                                </StackLayout>
+                                                
+                                                <Label Text="{Binding Location}"/>
+                                                <Label Text="{Binding DoorsOpen}"/>
+                                            </StackLayout>
+                                        
                                     </StackLayout>
-                                </Frame>
-                            </StackLayout>
-                    </ViewCell>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
-        </Grid>
+                                </Border>
+                                    
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                                        
+                </Grid>
+                    
+                
+            </ContentPage>
+            
+            <!--Admin page-->
+            <ContentPage IconImageSource="icon_admin.png" Style="{StaticResource ContentStyle}">
+            </ContentPage>
         
-    </ContentPage>
-    <ContentPage IconImageSource="icon_admin.png" Style="{StaticResource ContentStyle}"><!--Admin page-->
-    </ContentPage>
-    
-</TabbedPage>
+        </Tab>
+    </TabBar>
+</Shell>

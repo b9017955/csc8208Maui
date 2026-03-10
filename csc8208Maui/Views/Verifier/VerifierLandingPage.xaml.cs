@@ -12,7 +12,7 @@ using Microsoft.Maui;
 namespace csc8208Maui.Views.Verifier
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class VerifierLandingPage : TabbedPage
+    public partial class VerifierLandingPage : Shell
     {
         public VerifierLandingPage()
         {

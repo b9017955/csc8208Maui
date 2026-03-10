@@ -13,10 +13,14 @@ using Microsoft.Maui.Controls.Compatibility;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui;
 using Microsoft.Maui.Devices.Sensors;
+using ZXing.Net.Maui.Readers;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+
 
 namespace csc8208Maui.ViewModels
 {
-    class VerifierViewModel: BaseViewModel
+    partial class VerifierViewModel : ObservableObject
     {
         private EventStore todaysEvents = new EventStore();
         public ObservableCollection<Event> TodaysEventsList { get; set; }
@@ -39,6 +43,9 @@ namespace csc8208Maui.ViewModels
                 if(selectedEvent!=null) ScanQRCode(selectedEvent);
             }
         }
+
+        [ObservableProperty]
+        bool isDetecting = false;
 
         public VerifierViewModel()
         {
@@ -83,10 +90,11 @@ namespace csc8208Maui.ViewModels
 
         private async void ScanQRCode(Event eventToBeScanned)
         {
+            
             Console.WriteLine($"Attempting to scan QR for event: {eventToBeScanned.ID}, {eventToBeScanned.Artist}, {eventToBeScanned.Location}");
             return;
             //ZXing package unsupported; rewrite.
-            /*var scan = new ZXingScannerPage();
+            /* var scan = new ZXingBarcodeReader();
             await Shell.Current.Navigation.PushModalAsync(scan);
             scan.OnScanResult += (result) =>
             {
@@ -144,7 +152,7 @@ namespace csc8208Maui.ViewModels
                     Console.WriteLine($"Time taken to verify QR Code: {stopwatch.Elapsed.TotalMilliseconds} ms");
                     SelectedEvent = null;
                 });
-            };*/
+            }; */
         }
     }
 }

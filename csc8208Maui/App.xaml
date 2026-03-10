@@ -5,10 +5,14 @@
              x:Class="csc8208Maui.App">
     <Application.Resources>
         <ResourceDictionary>
-            <Color x:Key="Primary">#2196F3</Color>
+            <Color x:Key="Primary">#F2561D</Color>
 
             <Style x:Key="ContentStyle" TargetType="ContentPage">
-                <Setter Property="BackgroundColor" Value="#F2F1F6"></Setter>
+                <Setter Property="Background" Value="#F2F1F6"></Setter>
+            </Style>
+
+            <Style TargetType="StackLayout">
+                <Setter Property="Background" Value="White"/>
             </Style>
 
             <Style x:Key="TabStyle" TargetType="TabbedPage">
@@ -21,6 +25,9 @@
                 <Setter Property="TextColor" Value="#022026"></Setter>
                 <Setter Property="Margin" Value="4,0,0,0"></Setter>
                 <Setter Property="PlaceholderColor" Value="#F2561D"></Setter>
+            </Style>
+            <Style TargetType="Label">
+                <Setter Property="TextColor" Value="#022026"/>
             </Style>
 
             <Style x:Key="LoginButton" TargetType="Button">
