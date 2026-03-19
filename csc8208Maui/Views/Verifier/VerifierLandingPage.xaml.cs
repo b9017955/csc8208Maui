@@ -18,6 +18,7 @@ namespace csc8208Maui.Views.Verifier
         {
             InitializeComponent();
             this.BindingContext = new VerifierViewModel();
+            
         }
     }
 }

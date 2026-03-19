@@ -106,13 +106,18 @@ namespace csc8208Maui.ViewModels
                 }
             }
             
-            
-            
-            
-
-
+            //===================================
+            DebugLogin();
+            //===================================
         }
         
+        private async void DebugLogin()
+        {
+            Username="joe";
+            Password="password";
+            OnLoginClicked(new object {});
+        }
+
         private async void OnDebugNavigateHomeClicked(object obj)
         {
             await Shell.Current.GoToAsync("//user");

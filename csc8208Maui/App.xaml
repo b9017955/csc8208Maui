@@ -11,7 +11,7 @@
                 <Setter Property="Background" Value="#F2F1F6"></Setter>
             </Style>
 
-            <Style TargetType="StackLayout">
+            <Style TargetType="Border">
                 <Setter Property="Background" Value="White"/>
             </Style>
 

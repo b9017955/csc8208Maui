@@ -1,21 +1,22 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-            xmlns:android="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.AndroidSpecific;assembly=Microsoft.Maui.Controls"
-            android:TabbedPage.ToolbarPlacement="Bottom"
-            
-            x:Class="csc8208Maui.Views.Verifier.VerifierLandingPage"
-            xmlns:viewmodel="clr-namespace:csc8208Maui.ViewModels"
-            x:DataType="viewmodel:VerifierViewModel"
-
-            xmlns:local="clr-namespace:csc8208Maui;assembly=csc8208Maui"
-            xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.MAUI.Controls"
-            Style="{StaticResource TabStyle}"
-            >
+<Shell 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:android="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.AndroidSpecific;assembly=Microsoft.Maui.Controls"
+    android:TabbedPage.ToolbarPlacement="Bottom"
+    
+    x:Class="csc8208Maui.Views.Verifier.VerifierLandingPage"
+    xmlns:viewmodel="clr-namespace:csc8208Maui.ViewModels"
+    x:DataType="viewmodel:VerifierViewModel"
+    xmlns:local="clr-namespace:csc8208Maui;assembly=csc8208Maui"
+    Style="{StaticResource TabStyle}"
+    >
     <TabBar>
         <Tab>
-            
-            <ContentPage IconImageSource="icon_scan.png" Padding="20, 10, 20, 0" Style="{StaticResource ContentStyle}">
+            <ContentPage 
+                IconImageSource="icon_scan.png" 
+                Padding="20, 20, 20, 0" 
+                Style="{StaticResource ContentStyle}">
                 <!--
                     <Label Text="Todays Events:"
                         Grid.Row="0"
@@ -23,38 +24,39 @@
 
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="2*"/>
-                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="{Binding ListViewHeight}"/>
                     </Grid.RowDefinitions>
-                    <zxing:CameraBarcodeReaderView
-                        x:Name="cameraBarcodeReaderView"
-                        IsDetecting="{Binding IsDetecting}"/>
+                    
+                    
                     <CollectionView 
                         x:Name="ListOfTodaysEvents"
                         ItemsSource="{Binding TodaysEventsList}" 
                         SelectedItem="{Binding SelectedEvent, Mode=TwoWay}"
                         Grid.Row="1"
                         SelectionMode="Single"
-                        >
+                        Margin="0,0,0,0">
                                             
                         <CollectionView.ItemTemplate>
-                            <DataTemplate
-                                x:DataType="local:Models.Event">
-                                <Border Stroke="#022026"
-                                    StrokeLineCap="Round"
-                                    StrokeThickness="2">
+                            <DataTemplate x:DataType="local:Models.Event">
+                                <Border 
+                                    Stroke="#022026"
+                                    StrokeThickness="2"
+                                    Margin="0,0,0,10"
+                                    Padding="20">
                                     <Border.StrokeShape>
-                                        <RoundRectangle CornerRadius="20,20,20,20" />
+                                        <RoundRectangle CornerRadius="20" />
                                     </Border.StrokeShape>
                                     <StackLayout>
                                         <Label Text="{Binding DoorsOpen}"/>
-                                            <StackLayout Margin="10, 10, 10, 10">
+                                            <StackLayout>
                                                 <StackLayout Orientation="Horizontal">
-                                                    <Label Text="{Binding Artist}" 
+                                                    <Label 
+                                                        Text="{Binding Artist}" 
                                                         TextColor="#F2561D"
                                                         FontSize="Large"
                                                         HorizontalOptions="StartAndExpand"/>
-                                                    <Label Text="{Binding MusicGenre}"
+                                                    <Label 
+                                                        Text="{Binding MusicGenre}"
                                                         TextColor="#F2561D"
                                                         HorizontalOptions="EndAndExpand"/>
                                                 </StackLayout>
@@ -62,23 +64,19 @@
                                                 <Label Text="{Binding Location}"/>
                                                 <Label Text="{Binding DoorsOpen}"/>
                                             </StackLayout>
-                                        
                                     </StackLayout>
                                 </Border>
-                                    
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
-                    </CollectionView>
-                                        
+                    </CollectionView>           
                 </Grid>
-                    
-                
             </ContentPage>
             
             <!--Admin page-->
-            <ContentPage IconImageSource="icon_admin.png" Style="{StaticResource ContentStyle}">
+            <ContentPage 
+                IconImageSource="icon_admin.png" 
+                Style="{StaticResource ContentStyle}">
             </ContentPage>
-        
         </Tab>
     </TabBar>
 </Shell>

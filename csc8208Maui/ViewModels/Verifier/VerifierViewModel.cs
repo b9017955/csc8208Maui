@@ -45,7 +45,16 @@ namespace csc8208Maui.ViewModels
         }
 
         [ObservableProperty]
-        bool isDetecting = false;
+        bool isDetecting=false;
+
+        [ObservableProperty]
+        bool scannerVisible=false;
+
+        [ObservableProperty]
+        string cameraViewHeight="0";
+
+        [ObservableProperty]
+        string listViewHeight="100";
 
         public VerifierViewModel()
         {
@@ -55,6 +64,7 @@ namespace csc8208Maui.ViewModels
             todaysEvents.GenerateFakeData();//Debug code
             //GenerateEvents();
             TodaysEventsList = new ObservableCollection<Event>(todaysEvents.GetItemsAsync(false).Result);
+            HideCameraView();
         }
 
         private async void GenerateEvents()
@@ -88,10 +98,30 @@ namespace csc8208Maui.ViewModels
             await Shell.Current.GoToAsync($"verifier/{nameof(VerifierSettingsPage)}");
         }
 
+        private async void ShowCameraView()
+        {
+            
+            ScannerVisible=true;
+            CameraViewHeight="100";
+            ListViewHeight="0";
+            IsDetecting=true;
+            Shell.Current.GoToAsync("qrscanner");
+        }
+
+        private async void HideCameraView()
+        {
+            ScannerVisible=false;
+            CameraViewHeight="0";
+            ListViewHeight="100";
+            IsDetecting=false;
+        }
+
         private async void ScanQRCode(Event eventToBeScanned)
         {
             
             Console.WriteLine($"Attempting to scan QR for event: {eventToBeScanned.ID}, {eventToBeScanned.Artist}, {eventToBeScanned.Location}");
+            ShowCameraView();
+            
             return;
             //ZXing package unsupported; rewrite.
             /* var scan = new ZXingBarcodeReader();
