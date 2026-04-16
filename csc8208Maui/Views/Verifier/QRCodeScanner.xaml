@@ -3,15 +3,17 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     x:Class="csc8208Maui.Views.Verifier.QRCodeScanner"
-    Title="QRCodeScanner"
+    Title="{Binding SelectedEvent.Artist}"
     xmlns:local="clr-namespace:csc8208Maui;assembly=csc8208Maui"
     xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.MAUI.Controls"
+    xmlns:viewmodel="clr-namespace:csc8208Maui.ViewModels.Verifier"
+    x:DataType="viewmodel:QRCodeScannerViewModel"
     Style="{StaticResource TabStyle}">
 
     <VerticalStackLayout>
         <zxing:CameraBarcodeReaderView
-                            x:Name="cameraBarcodeReaderView"
-                            IsDetecting="{Binding IsDetecting}"
-                            />
+            x:Name="cameraBarcodeReaderView"
+            BarcodesDetected="BarcodeReader"
+            />
     </VerticalStackLayout>
 </ContentPage>

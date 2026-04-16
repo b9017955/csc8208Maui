@@ -39,18 +39,17 @@ namespace csc8208Maui.Services
         public static string logoutErrorMessage = "There was an error whilst attempting to sign out.";
         //==========================================================================
         // Apps digital signature data
-        static ECDsaSigner ecdsa = new ECDsaSigner();
+        static ECDsaSigner ecdsa;
         static string curveName = "secp256r1";
         static X9ECParameters curve= Org.BouncyCastle.Asn1.Sec.SecNamedCurves.GetByName(curveName);
         static ECDomainParameters parameters;
         //--------------------------------------------------------------------------
         // Used by user
-        public static ECPrivateKeyParameters AppSignaturePrivateKey;
-        static ECPublicKeyParameters AppSignaturePublicKey;
-        static bool newAppSignatureKeyMaterialRequired = false;
+        public static ECPrivateKeyParameters appSignaturePrivateKey;
+        static ECPublicKeyParameters appSignaturePublicKey;
         //--------------------------------------------------------------------------
         // Used by verifier
-        static ECPublicKeyParameters DownloadedPublicKey;
+        static ECPublicKeyParameters downloadedPublicKey;
         public static string loginSuccessMessage = "Login successful";
         public static string invalidCredentialsMessage = "Username or password is incorrect.";
         //==========================================================================
@@ -69,57 +68,38 @@ namespace csc8208Maui.Services
             //----------------------------------------
             //Debug DO NOT USE IN PRODUCTION
             //custom handler ignores SSL error caused by server's self-signed certificate
-            var handler = new HttpClientHandler();
-
-            //#if DEBUG
-            handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) =>
+            var handler = new HttpClientHandler
             {
-                if (cert != null && cert.Issuer.Equals("CN=localhost"))
-                    return true;
-                return errors == System.Net.Security.SslPolicyErrors.None;
+                ServerCertificateCustomValidationCallback = (message, cert, chain, errors) =>
+                {
+                    if (cert != null && cert.Issuer.Equals("CN=localhost"))
+                        return true;
+                    return errors == System.Net.Security.SslPolicyErrors.None;
+                }
             };
-            //#endif
+
             client = new HttpClient(handler)
             {
                 BaseAddress = new Uri(BaseURL)
             };
-            newAppSignatureKeyMaterialRequired = true;
             
-            //----------------------------------------
-            //Check if secure storage contains key material for app signature
-            parameters = new ECDomainParameters(curve.Curve, curve.G, curve.N, curve.H);
-            if (SecureStorage.GetAsync("serialisedPrivateKeyInfo").Result != null && SecureStorage.GetAsync("serialisedPublicKeyInfo").Result != null)
-            {
-                Console.WriteLine("Found key material");
-                string serialisedPrivateKeyInfo = SecureStorage.GetAsync(nameof(serialisedPrivateKeyInfo)).Result;
-                AppSignaturePrivateKey = new ECPrivateKeyParameters(new BigInteger(Convert.FromBase64String(serialisedPrivateKeyInfo)), parameters);
-                var serialisedPublicKeyInfo = Convert.FromBase64String(SecureStorage.GetAsync("serialisedPublicKeyInfo").Result);
-                ECPoint publicKeyPoint = parameters.Curve.DecodePoint(serialisedPublicKeyInfo);
-                AppSignaturePublicKey = new ECPublicKeyParameters(publicKeyPoint, parameters);
-            }
-            else
-            {
-                //Signature scheme must be initialised
-                newAppSignatureKeyMaterialRequired = true;
-            }
+            InitialiseSignatureSigning();
         }
 
         //For debugging purposes
         public static (byte[] r, byte[] s) DebugSignature()
         {
-            InitialiseNewAppSignature();
-            
             var binaryPrivateKeyInfo = Convert.FromBase64String(SecureStorage.GetAsync("serialisedPrivateKeyInfo").Result);
             var decodedPrivateKey = new ECPrivateKeyParameters(new BigInteger(binaryPrivateKeyInfo), parameters);
 
             var message = Encoding.UTF8.GetBytes("Test Message");
             ecdsa.Init(true, decodedPrivateKey);
             var signature = ecdsa.GenerateSignature(message);
-            ecdsa.Init(false, AppSignaturePublicKey);
+            ecdsa.Init(false, appSignaturePublicKey);
             var isSignatureValid = ecdsa.VerifySignature(message, signature[0], signature[1]);
             Console.WriteLine($"£Input Message:{message}");
             Console.WriteLine($"£StoredPrivateKey: {decodedPrivateKey.D}");
-            Console.WriteLine($"£GeneratedPrivateKey: {AppSignaturePrivateKey.D}");
+            Console.WriteLine($"£GeneratedPrivateKey: {appSignaturePrivateKey.D}");
             Console.WriteLine($"£PublicKey: {SecureStorage.GetAsync("serialisedPublicKeyInfo").Result}");
             Console.WriteLine($"£Signature {signature}, Checking validity of generated signature:{isSignatureValid}");
             Console.WriteLine($"£SIGNATURE FORMAT: {signature}, Length={signature.Length}");
@@ -130,7 +110,7 @@ namespace csc8208Maui.Services
         {
             var newTimeStamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             var serialisedTimeStamp = BitConverter.GetBytes(newTimeStamp);
-            ecdsa.Init(true, AppSignaturePrivateKey);
+            ecdsa.Init(true, appSignaturePrivateKey);
             //Console.WriteLine($"£ENCRYPTION PUBLIC KEY:{Convert.ToBase64String(AppSignaturePublicKey.Q.GetEncoded())}");
             var signature = ecdsa.GenerateSignature(serialisedTimeStamp);
             return (serialisedTimeStamp, signature[0].ToByteArray(), signature[1].ToByteArray());
@@ -140,10 +120,10 @@ namespace csc8208Maui.Services
         {
             var serialisedPublicKeyInfo = Convert.FromBase64String(base64EncodedSerialisedPublicKeyInfo);
             ECPoint publicKeyPoint = parameters.Curve.DecodePoint(serialisedPublicKeyInfo);
-            DownloadedPublicKey = new ECPublicKeyParameters(publicKeyPoint, parameters);
+            downloadedPublicKey = new ECPublicKeyParameters(publicKeyPoint, parameters);
             //Console.WriteLine($"£DECRYPTION PUBLIC KEY:{Convert.ToBase64String(DownloadedPublicKey.Q.GetEncoded())}");
             BigInteger[] signature = {new BigInteger(serialisedSignature.r), new BigInteger(serialisedSignature.s)}; 
-            ecdsa.Init(false, DownloadedPublicKey);
+            ecdsa.Init(false, downloadedPublicKey);
             var isSignatureValid = ecdsa.VerifySignature(serialisedSignature.serialisedTimeStamp, signature[0], signature[1]);
 
             string decisionDetails;
@@ -177,31 +157,36 @@ namespace csc8208Maui.Services
             return (decision, decisionDetails);
         }
 
-        public static void InitialiseNewAppSignature()
+        public static void InitialiseSignatureSigning()
         {
-            //var curve = Org.BouncyCastle.Asn1.Sec.SecNamedCurves.GetByName(curveName);
+            ecdsa = new ECDsaSigner();
             parameters = new ECDomainParameters(curve.Curve, curve.G, curve.N, curve.H);
             var keyParameters = new ECKeyGenerationParameters(parameters, new SecureRandom());
-            var generator = new ECKeyPairGenerator();
-            generator.Init(keyParameters);
-            var keyPair = generator.GenerateKeyPair();
-
-            /*PrivateKeyInfo privateKeyInfo = PrivateKeyInfoFactory.CreatePrivateKeyInfo(keyPair.Private);
-            string serialisedPrivateKeyInfo = Convert.ToBase64String(privateKeyInfo.ToAsn1Object().GetDerEncoded());*/
             
-            byte[] privateKeyInfo = ((ECPrivateKeyParameters)keyPair.Private).D.ToByteArray();
-            string serialisedPrivateKeyInfo = Convert.ToBase64String(privateKeyInfo);
+            byte[] serialisedPrivateKey;
+            byte[] serialisedPublicKey;
+            //Look for key material in secure storage
+            if(SecureStorage.GetAsync("serialisedPrivateKeyInfo").Result != null && SecureStorage.GetAsync("serialisedPublicKeyInfo").Result != null)
+            {
+                serialisedPrivateKey = Convert.FromBase64String(SecureStorage.GetAsync(nameof(serialisedPrivateKey)).Result);
+                serialisedPublicKey = Convert.FromBase64String(SecureStorage.GetAsync("serialisedPublicKeyInfo").Result);
+                appSignaturePrivateKey = new ECPrivateKeyParameters(new BigInteger(serialisedPrivateKey), parameters);
+                appSignaturePublicKey = new ECPublicKeyParameters(parameters.Curve.DecodePoint(serialisedPublicKey), parameters);
+            }
+            else
+            {
+                var generator = new ECKeyPairGenerator();
+                generator.Init(keyParameters);
+                var keyPair = generator.GenerateKeyPair();
+                appSignaturePrivateKey = (ECPrivateKeyParameters) keyPair.Private;
+                appSignaturePublicKey = (ECPublicKeyParameters) keyPair.Public;
 
-            byte[] binaryPublicKeyInfo = ((ECPublicKeyParameters)keyPair.Public).Q.GetEncoded();
-            string serialisedPublicKeyInfo = Convert.ToBase64String(binaryPublicKeyInfo);
-            Console.WriteLine($"New Public Key: {serialisedPublicKeyInfo}");
-            SecureStorage.SetAsync(nameof(serialisedPrivateKeyInfo), serialisedPrivateKeyInfo);
-            SecureStorage.SetAsync(nameof(serialisedPublicKeyInfo), serialisedPublicKeyInfo);
-
-            AppSignaturePrivateKey = (ECPrivateKeyParameters) keyPair.Private;
-            AppSignaturePublicKey = (ECPublicKeyParameters) keyPair.Public;
-
-            newAppSignatureKeyMaterialRequired = false;
+                serialisedPrivateKey = ((ECPrivateKeyParameters)keyPair.Private).D.ToByteArray();
+                serialisedPublicKey = ((ECPublicKeyParameters)keyPair.Public).Q.GetEncoded();
+                SecureStorage.SetAsync(nameof(serialisedPrivateKey), Convert.ToBase64String(serialisedPrivateKey));
+                SecureStorage.SetAsync(nameof(serialisedPublicKey), Convert.ToBase64String(serialisedPublicKey));
+                Console.WriteLine($"New Public Key: {Convert.ToBase64String(serialisedPublicKey)}");
+            }
         }
 
         //Testing
@@ -266,19 +251,11 @@ namespace csc8208Maui.Services
                     Console.WriteLine($"JWT={JWT}");
                     await SecureStorage.SetAsync("JWT", JWT);
                     SetHTTPHeaders(JWT);
-                    // User may be logging in to a new device
-                    if (newAppSignatureKeyMaterialRequired)
-                    {
-                        InitialiseNewAppSignature();
-                        var clientPublicKey = await Task.Run(() => SecureStorage.GetAsync("serialisedPublicKeyInfo").Result);
-                        var key = clientPublicKey;
-                        var keyMaterial = new {key};
-                        var keyMaterialJSON = JsonConvert.SerializeObject(keyMaterial);
-                        var keyUpdateContent = new StringContent(keyMaterialJSON, Encoding.UTF8, "application/json");
-                        var keyUpdateResponse = client.PostAsync("Login/submitClientPublicKey", keyUpdateContent);
-                        
-                        //Console.WriteLine($"Response from submitPublicKey={keyUpdateResponse.Result.StatusCode}");
-                    }
+                    string encodedPublicKey = Convert.ToBase64String(appSignaturePublicKey.Q.GetEncoded());
+                    var json = JsonConvert.SerializeObject(new {encodedPublicKey});
+                    var payload = new StringContent(json, Encoding.UTF8, "application/json");
+                    var keyUpdateResponse = client.PostAsync("Login/submitClientPublicKey", payload);
+
                     bool accountDownloadSuccess = GetAccountInfo();
                     if (!accountDownloadSuccess)
                     {
@@ -301,7 +278,7 @@ namespace csc8208Maui.Services
 
         public static (bool success, string message) UpdatePublicKey()
         {
-            var publicKeyPayload = new { app_public_key = AppSignaturePublicKey };
+            var publicKeyPayload = new { app_public_key = appSignaturePublicKey };
             var publicKeyPayloadJSON = JsonConvert.SerializeObject(publicKeyPayload);
             var content = new StringContent(publicKeyPayloadJSON, Encoding.UTF8, "application/json");
             var response = client.PostAsync("UpdatePublicKey", content).Result;
@@ -332,10 +309,8 @@ namespace csc8208Maui.Services
                         BaseAddress = new Uri(BaseURL)
                     };
                     account = null;
-                    ecdsa = new ECDsaSigner();
-                    newAppSignatureKeyMaterialRequired = true;
-                    AppSignaturePrivateKey = null;
-                    AppSignaturePublicKey = null;
+                    appSignaturePrivateKey = null;
+                    appSignaturePublicKey = null;
                     return true;
                 }
                 else

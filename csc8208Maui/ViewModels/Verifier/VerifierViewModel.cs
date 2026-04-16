@@ -16,6 +16,7 @@ using Microsoft.Maui.Devices.Sensors;
 using ZXing.Net.Maui.Readers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using csc8208Maui.ViewModels.Verifier;
 
 
 namespace csc8208Maui.ViewModels
@@ -40,7 +41,11 @@ namespace csc8208Maui.ViewModels
                 selectedEvent = value;
                 
                 OnPropertyChanged(nameof(SelectedEvent));
-                if(selectedEvent!=null) ScanQRCode(selectedEvent);
+                if (selectedEvent != null)
+                {
+                    ScanQRCode(selectedEvent);
+                    SelectedEvent=null;
+                } 
             }
         }
 
@@ -105,7 +110,8 @@ namespace csc8208Maui.ViewModels
             CameraViewHeight="100";
             ListViewHeight="0";
             IsDetecting=true;
-            Shell.Current.GoToAsync("qrscanner");
+            await Shell.Current.Navigation.PushModalAsync(new QRCodeScanner(new QRCodeScannerViewModel(selectedEvent)));
+            
         }
 
         private async void HideCameraView()
@@ -121,11 +127,11 @@ namespace csc8208Maui.ViewModels
             
             Console.WriteLine($"Attempting to scan QR for event: {eventToBeScanned.ID}, {eventToBeScanned.Artist}, {eventToBeScanned.Location}");
             ShowCameraView();
-            
             return;
+
             //ZXing package unsupported; rewrite.
-            /* var scan = new ZXingBarcodeReader();
-            await Shell.Current.Navigation.PushModalAsync(scan);
+            /*var scan = new QRCodeScanner(selectedEvent);
+            await Shell.Current.Navigation.PushModalAsync(new QRCodeScanner(selectedEvent));
             scan.OnScanResult += (result) =>
             {
                 Device.BeginInvokeOnMainThread(async () =>

@@ -15,7 +15,6 @@ namespace csc8208Maui
             Routing.RegisterRoute($"user/{nameof(UserSettingsPage)}",typeof(UserSettingsPage));
             Routing.RegisterRoute($"verifier/{nameof(VerifierSettingsPage)}", typeof(VerifierSettingsPage));
             Routing.RegisterRoute($"login/{nameof(RegistrationPage)}", typeof(RegistrationPage));
-            Routing.RegisterRoute("qrscanner", typeof(QRCodeScanner));
         }
     }
 }
