@@ -4,6 +4,8 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:csc8208Maui.Views"
+    xmlns:verifier="clr-namespace:csc8208Maui.Views.Verifier"
+    xmlns:user="clr-namespace:csc8208Maui.Views.User"
     Shell.FlyoutBehavior="Disabled"
     Title="csc8208Maui">
 
@@ -11,10 +13,10 @@
         <ShellContent ContentTemplate="{DataTemplate local:LoginPage}"/>
     </ShellItem>
     <ShellItem Route="verifier">
-        <ShellContent ContentTemplate="{DataTemplate local:Verifier.VerifierLandingPage}"/>
+        <ShellContent ContentTemplate="{DataTemplate verifier:VerifierLandingPage}"/>
     </ShellItem>
     <ShellItem Route="user">
-        <ShellContent ContentTemplate="{DataTemplate local:User.UserLandingPage}"/>
+        <ShellContent ContentTemplate="{DataTemplate user:UserLandingPage}"/>
     </ShellItem>
 
     <Shell.Resources>

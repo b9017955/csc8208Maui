@@ -15,6 +15,9 @@ using Microsoft.Maui.Controls;
 using Microsoft.Maui;
 using Microsoft.Maui.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
+using System.Security.Cryptography;
+using Org.BouncyCastle.Math;
+using System.Buffers.Text;
 
 namespace csc8208Maui.ViewModels.User
 {
@@ -65,8 +68,9 @@ namespace csc8208Maui.ViewModels.User
 
         private void StartTimer()
         {
-            timer = new System.Timers.Timer(TimeSpan.FromSeconds(5).TotalMilliseconds);
+            timer = new System.Timers.Timer(5000);
             timer.Elapsed += OnTimerElapsed;
+            timer.AutoReset = true;
             timer.Start();
         }
 
@@ -101,14 +105,20 @@ namespace csc8208Maui.ViewModels.User
         private void RegenerateQRCodes(string msg)
         {
             Console.WriteLine($"{msg}:^Regenerating QR Codes");
-            
-            foreach(Ticket ticket in userTickets.userTickets)
+
+            var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            var serialisedTimeStamp = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(timestamp);
+            byte[] timeStampHash = SHA256.HashData(serialisedTimeStamp);
+
+            //Console.WriteLine($"£ENCRYPTION PUBLIC KEY:{Convert.ToBase64String(AppSignaturePublicKey.Q.GetEncoded())}");
+            BigInteger[] appSignedTimeStamp = WebService.GenerateAppSignature(timeStampHash);
+            string encodedTimeStamp = Convert.ToBase64String(serialisedTimeStamp);
+            string encodedAppSignedTimeStamp = Serialisers.SerialiseSignature(appSignedTimeStamp);
+
+            foreach (Ticket ticket in userTickets.userTickets)
             {
-                string encodedQRCodeData;
-                (byte[] serialisedTimeStamp, byte[] r, byte[] s) signedTimeStamp = WebService.GenerateSignedTimeStamp();
-                QRCode QRCodeData = new QRCode(ticket.ServerSignedTicket, signedTimeStamp);
-                encodedQRCodeData = JsonConvert.SerializeObject(QRCodeData);
-                ticket.QRCode = encodedQRCodeData;
+                string serverSignedTicket = ticket.ServerSignedTicket;
+                ticket.QRCode = $"{serverSignedTicket},{encodedTimeStamp},{encodedAppSignedTimeStamp}";
                 Console.WriteLine($"{msg}:^Fresh Timestamp: {ticket.QRCode}");
             }
             Console.WriteLine($"{msg}: ^Tickets length BEFORE= {Tickets.Count}");

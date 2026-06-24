@@ -25,6 +25,9 @@ using Microsoft.Maui.Storage;
 using System.Net;
 using System.Net.Http.Json;
 using System.Diagnostics;
+using Java.Lang;
+//using System.Security.Cryptography;
+using System.Runtime.Intrinsics.Arm;
 
 namespace csc8208Maui.Services
 {
@@ -106,33 +109,27 @@ namespace csc8208Maui.Services
             return (signature[0].ToByteArray(), signature[1].ToByteArray());
         }
 
-        public static (byte[] serialisedTimeStamp, byte[] r, byte[] s) GenerateSignedTimeStamp()
+        public static BigInteger[] GenerateAppSignature(byte[] message)
         {
-            var newTimeStamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-            var serialisedTimeStamp = BitConverter.GetBytes(newTimeStamp);
             ecdsa.Init(true, appSignaturePrivateKey);
-            //Console.WriteLine($"£ENCRYPTION PUBLIC KEY:{Convert.ToBase64String(AppSignaturePublicKey.Q.GetEncoded())}");
-            var signature = ecdsa.GenerateSignature(serialisedTimeStamp);
-            return (serialisedTimeStamp, signature[0].ToByteArray(), signature[1].ToByteArray());
+            return ecdsa.GenerateSignature(message);
         }
 
-        public static (bool decision, string decisionDetails) VerifyTimeStamp((byte[] serialisedTimeStamp, byte[] r, byte[] s) serialisedSignature,  string base64EncodedSerialisedPublicKeyInfo)
+        public static (bool decision, string decisionDetails) VerifyTimeStamp(long timeStamp, BigInteger[] signature,  string base64EncodedSerialisedPublicKeyInfo)
         {
             var serialisedPublicKeyInfo = Convert.FromBase64String(base64EncodedSerialisedPublicKeyInfo);
             ECPoint publicKeyPoint = parameters.Curve.DecodePoint(serialisedPublicKeyInfo);
             downloadedPublicKey = new ECPublicKeyParameters(publicKeyPoint, parameters);
             //Console.WriteLine($"£DECRYPTION PUBLIC KEY:{Convert.ToBase64String(DownloadedPublicKey.Q.GetEncoded())}");
-            BigInteger[] signature = {new BigInteger(serialisedSignature.r), new BigInteger(serialisedSignature.s)}; 
             ecdsa.Init(false, downloadedPublicKey);
-            var isSignatureValid = ecdsa.VerifySignature(serialisedSignature.serialisedTimeStamp, signature[0], signature[1]);
+            var isSignatureValid = ecdsa.VerifySignature(System.Security.Cryptography.SHA256.HashData(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(timeStamp)), signature[0], signature[1]);
 
             string decisionDetails;
             bool decision;
             if (isSignatureValid)
             {
-                long timeStampFromQRCode = BitConverter.ToInt64(serialisedSignature.serialisedTimeStamp, 0);
                 long currentTimeStamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-                var timeStampAge = currentTimeStamp - timeStampFromQRCode;
+                var timeStampAge = currentTimeStamp - timeStamp;
                 if (timeStampAge < 0)
                 {
                     decision = false;
@@ -168,7 +165,7 @@ namespace csc8208Maui.Services
             //Look for key material in secure storage
             if(SecureStorage.GetAsync("serialisedPrivateKeyInfo").Result != null && SecureStorage.GetAsync("serialisedPublicKeyInfo").Result != null)
             {
-                serialisedPrivateKey = Convert.FromBase64String(SecureStorage.GetAsync(nameof(serialisedPrivateKey)).Result);
+                serialisedPrivateKey = Convert.FromBase64String(SecureStorage.GetAsync("serialisedPrivateKeyInfo").Result);
                 serialisedPublicKey = Convert.FromBase64String(SecureStorage.GetAsync("serialisedPublicKeyInfo").Result);
                 appSignaturePrivateKey = new ECPrivateKeyParameters(new BigInteger(serialisedPrivateKey), parameters);
                 appSignaturePublicKey = new ECPublicKeyParameters(parameters.Curve.DecodePoint(serialisedPublicKey), parameters);
@@ -183,8 +180,8 @@ namespace csc8208Maui.Services
 
                 serialisedPrivateKey = ((ECPrivateKeyParameters)keyPair.Private).D.ToByteArray();
                 serialisedPublicKey = ((ECPublicKeyParameters)keyPair.Public).Q.GetEncoded();
-                SecureStorage.SetAsync(nameof(serialisedPrivateKey), Convert.ToBase64String(serialisedPrivateKey));
-                SecureStorage.SetAsync(nameof(serialisedPublicKey), Convert.ToBase64String(serialisedPublicKey));
+                SecureStorage.SetAsync("serialisedPrivateKeyInfo", Convert.ToBase64String(serialisedPrivateKey));
+                SecureStorage.SetAsync("serialisedPublicKeyInfo", Convert.ToBase64String(serialisedPublicKey));
                 Console.WriteLine($"New Public Key: {Convert.ToBase64String(serialisedPublicKey)}");
             }
         }
@@ -251,10 +248,7 @@ namespace csc8208Maui.Services
                     Console.WriteLine($"JWT={JWT}");
                     await SecureStorage.SetAsync("JWT", JWT);
                     SetHTTPHeaders(JWT);
-                    string encodedPublicKey = Convert.ToBase64String(appSignaturePublicKey.Q.GetEncoded());
-                    var json = JsonConvert.SerializeObject(new {encodedPublicKey});
-                    var payload = new StringContent(json, Encoding.UTF8, "application/json");
-                    var keyUpdateResponse = client.PostAsync("Login/submitClientPublicKey", payload);
+                    SubmitPublicKey();
 
                     bool accountDownloadSuccess = GetAccountInfo();
                     if (!accountDownloadSuccess)
@@ -276,13 +270,13 @@ namespace csc8208Maui.Services
             
         }
 
-        public static (bool success, string message) UpdatePublicKey()
+        public static (bool success, string message) SubmitPublicKey()
         {
-            var publicKeyPayload = new { app_public_key = appSignaturePublicKey };
-            var publicKeyPayloadJSON = JsonConvert.SerializeObject(publicKeyPayload);
-            var content = new StringContent(publicKeyPayloadJSON, Encoding.UTF8, "application/json");
-            var response = client.PostAsync("UpdatePublicKey", content).Result;
-            if (response.IsSuccessStatusCode)
+            var encodedPublicKey = Convert.ToBase64String(appSignaturePublicKey.Q.GetEncoded());
+            var json = JsonConvert.SerializeObject(new {encodedPublicKey});
+            var payload = new StringContent(json, Encoding.UTF8, "application/json");
+            var keyUpdateResponse = client.PostAsync("Login/submitClientPublicKey", payload).Result;
+            if (keyUpdateResponse.IsSuccessStatusCode)
             {
                 return (true, "Successfully updated public key");
             }
@@ -385,45 +379,26 @@ namespace csc8208Maui.Services
                     return null;
                 }
             }
-            catch(Exception e)
+            catch
             {
                 return null;
             }
         }
 
-        public static async Task<(int id, int[] signedTicket)> BuyTicket(string id)
+        public static async Task<string> BuyTicket(int id)
         {
             //return "TICKET";//DEBUG DELETE THIS //Whoops hopefully they glossed over this
-            var orderPayload = new { email = "a.vann1@ncl.ac.uk", token = "eyJhbGciOiJIUzI1NiJ9.dGVzdF9lbWFpbEBlbWFpbC5jb20xNjc5MzI1MjQ0NzQ0dGVzdF9wYXNzd29yZA.1zOjjtMWzmwUkTlWbVdc99-LZm7BgvDnfMT90vjrBG4", event_id = id};
-            var orderInfoJSON = JsonConvert.SerializeObject(orderPayload);
-            var content = new StringContent(orderInfoJSON, Encoding.UTF8, "application/json");
-            var response = await client.PostAsync("BuyTicket", content);
+            int eventId = id;
+            var response = await client.PostAsJsonAsync("Ticket/BuyTicket", eventId);//client.PostAsync("Ticket/BuyTicket", content);
             if (response.IsSuccessStatusCode)
             {
-                var responseBody = response.Content.ReadAsStringAsync().Result;// Needs deserialising <-------------------------
-                Console.WriteLine($"Recieved New Ticket: {responseBody}");
-                //(int ticket_id, int[] signed_ticket_id) returnJson = JsonConvert.DeserializeObject<(int ticket_id, int[] signed_ticket_id)>(responseBody);
-                Dictionary<string, object> returnJson = JsonConvert.DeserializeObject<Dictionary<string, object>>(responseBody);
-                int ticket_id = int.Parse(returnJson["ticket_id"].ToString());
-                string[] signed_ticket_id_str = returnJson["signed_ticket_id"].ToString().Replace("[", "").Replace("]", "").Split(',');
-                int[] signed_ticket_id = new int[signed_ticket_id_str.Length];
-                for (int i = 0; i < signed_ticket_id.Length; i++)
-                {
-                    signed_ticket_id[i] = int.Parse(signed_ticket_id_str[i]);
-                }
-                //(int, int[]) tuple = ((int) returnJson["ticket_id"], returnJson["signed_ticket_id"].ToString());
-                Console.WriteLine($"RETURN JSON: {ticket_id},{string.Join(",", signed_ticket_id)}");
-                //var actualJson = JsonConvert.DeserializeObject<(int ticket_id, int[] signed_ticket_id)>(returnJson);
-                //JObject deserialisedData = JObject.Parse((string)JObject.Parse(responseBody).GetValue("return"));
-                //Console.WriteLine($"JOBJECT: {deserialisedData}");
-                //return ((int) deserialisedData["ticket_id"], (string) deserialisedData["signed_ticket_id"]);
-                //return (actualJson.ticket_id, actualJson.signed_ticket_id.ToString());
-                //return (ticket_id, $"[{string.Join(",", signed_ticket_id)}]");
-                return (ticket_id, signed_ticket_id);
+                var encodedSignedTicket = response.Content.ReadAsStringAsync().Result;
+                Console.WriteLine($"Recieved New Ticket: {encodedSignedTicket}");
+                return encodedSignedTicket;
             }
             else
             {
-                return (-1,null);
+                throw new System.Exception("BuyTicket() received a response from the server that was not a success code");
             }
         }
 

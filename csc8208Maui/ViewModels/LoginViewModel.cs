@@ -90,11 +90,11 @@ namespace csc8208Maui.ViewModels
             //Check for locally stored account info for offline use
             //string serialisedAccount = SecureStorage.GetAsync("account").Result;
             //WebService.account = JsonConvert.DeserializeObject<Account>(serialisedAccount);
-            string JWT = SecureStorage.GetAsync("JWT").Result;
-            WebService.SetHTTPHeaders(JWT);
+            //string JWT = SecureStorage.GetAsync("JWT").Result;
+            //WebService.SetHTTPHeaders(JWT);
             //WebService.GetAccountInfo();
             
-            if(WebService.account is not null && JWT is not null)
+            /* if(WebService.account is not null && JWT is not null)
             {
                 if (WebService.account.verifier)
                 {
@@ -104,7 +104,7 @@ namespace csc8208Maui.ViewModels
                 {
                     Shell.Current.GoToAsync("//user");//Go to user landing page
                 }
-            }
+            } */
             
             //===================================
             DebugLogin();

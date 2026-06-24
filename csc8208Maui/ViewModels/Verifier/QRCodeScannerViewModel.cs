@@ -27,50 +27,19 @@ public partial class QRCodeScannerViewModel : ObservableObject
     {
         Stopwatch stopwatch = new Stopwatch();
         stopwatch.Start();
+
         string scannedEncodedQRCodeData = e.Results?.FirstOrDefault().Value;
-        Console.WriteLine($"Barcode Data: {scannedEncodedQRCodeData}");
-        QRCode scannedQRCodeData;
-        try
-        {
-            scannedQRCodeData = JsonConvert.DeserializeObject<QRCode>(scannedEncodedQRCodeData);
-        }
-        catch
+        if (scannedEncodedQRCodeData is null)
         {
             await Shell.Current.Navigation.PushAsync(new QRCodeDecisionPage(SelectedEvent, 0, "ERROR SCANNING QR CODE"));
-
             return;
         }
-        (Account accountInfo, Ticket ticketInfo) ticketInfoFromServer = WebService.VerifyTicket(scannedQRCodeData.serverSignedTicket).Result;
-        (bool timeStampDecision, string timeStampDecisionDetails) timeStampVerificationOutcome = WebService.VerifyTimeStamp(scannedQRCodeData.appSignedTimeStamp, ticketInfoFromServer.accountInfo.appPublicKey);
-        //(bool timeStampDecision, string timeStampDecisionDetails) timeStampVerificationOutcome = WebService.VerifyTimeStamp(scannedQRCodeData.appSignedTimeStamp, SecureStorage.GetAsync("DEBUGPUBLICKEY").Result);
-        Console.WriteLine($"£ {timeStampVerificationOutcome.timeStampDecisionDetails}");
+        Console.WriteLine($"Barcode Data: {scannedEncodedQRCodeData}");
+        // QR Code Data "{serverSignedTicket},{appTimeStamp},{appSignedTimeStamp}"
+        //=========================================================================================================================================================
+        // TODO CODE FOR VERIFYING TICKET AND TIMESTAMP
         
-        int overallDecision;//0=Denied, 1=Approved, 2=Further Action Required
-        string overallDecisionDetails;
-        
-        if (ticketInfoFromServer.accountInfo != null && ticketInfoFromServer.ticketInfo != null)
-        {
-            if (ticketInfoFromServer.ticketInfo.Artist.Equals(selectedEvent.Artist) &&
-            ticketInfoFromServer.ticketInfo.EventLocation.Equals(selectedEvent.Location) &&
-            ticketInfoFromServer.ticketInfo.DoorsOpen.Equals(selectedEvent.DoorsOpen))
-            {
-                overallDecision = timeStampVerificationOutcome.timeStampDecision ? 1 : 2;
-                overallDecisionDetails = $"TICKET IS VALID::{timeStampVerificationOutcome.timeStampDecisionDetails}::FirstName:{ticketInfoFromServer.accountInfo.firstName}, SecondName:{ticketInfoFromServer.accountInfo.secondName}";
-            }
-            else
-            {
-                overallDecision = 0;
-                overallDecisionDetails = $"TICKET IS NOT VALID FOR THIS EVENT::{timeStampVerificationOutcome.timeStampDecisionDetails}";
-            }
-        }
-        else
-        {
-            overallDecision = 0;
-            overallDecisionDetails = $"TICKET IS INVALID";
-        }
-        await Shell.Current.Navigation.PushAsync(new QRCodeDecisionPage(SelectedEvent, overallDecision, overallDecisionDetails));
-        stopwatch.Stop();
-        Console.WriteLine($"Time taken to verify QR Code: {stopwatch.Elapsed.TotalMilliseconds} ms");
+        //await Shell.Current.Navigation.PushAsync(new QRCodeDecisionPage(SelectedEvent, overallDecision, overallDecisionDetails));
     }
 
 }

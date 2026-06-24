@@ -25,7 +25,7 @@ namespace csc8208Maui.Services
             return await Task.FromResult(true);
         }
 
-        public async Task<bool> DeleteItemAsync(string id)
+        public async Task<bool> DeleteItemAsync(int id)
         {
             var oldItem = events.Where((Event arg) => arg.ID == id).FirstOrDefault();
             events.Remove(oldItem);
@@ -33,7 +33,7 @@ namespace csc8208Maui.Services
             return await Task.FromResult(true);
         }
 
-        public async Task<Event> GetItemAsync(string id)
+        public async Task<Event> GetItemAsync(int id)
         {
             return await Task.FromResult(events.FirstOrDefault(s => s.ID == id));
         }
@@ -52,14 +52,14 @@ namespace csc8208Maui.Services
         public async void GenerateFakeData()
         {
             DeleteAllItems();
-            AddItemAsync(new Event("1", "The Hunna", Genre.Rock, "Watford", "19:00"));
-            AddItemAsync(new Event("2", "Daði Freyr", Genre.Dance, "Reykjavík", "15:00"));
-            AddItemAsync(new Event("0", "Billie Eilash", Genre.Dance, "Los Angeles", "21:00"));
-            AddItemAsync(new Event("3", "2Pac", Genre.Rap, "Las Vegas", "16:00"));
-            AddItemAsync(new Event("4", "Louis Armstrong", Genre.Jazz, "New Orleans", "19:00"));
-            AddItemAsync(new Event("5", "Neck Deep", Genre.Rock, "Wrexham", "20:00"));
-            AddItemAsync(new Event("6", "The 1975", Genre.Rock, "Wilmslow", "23:00"));
-            AddItemAsync(new Event("7", "L’Orange", Genre.HipHop, "North Carolina", "8:00"));
+            AddItemAsync(new Event(1, "The Hunna", Genre.Rock, "Watford", "19:00"));
+            AddItemAsync(new Event(2, "Daði Freyr", Genre.Dance, "Reykjavík", "15:00"));
+            AddItemAsync(new Event(0, "Billie Eilash", Genre.Dance, "Los Angeles", "21:00"));
+            AddItemAsync(new Event(3, "2Pac", Genre.Rap, "Las Vegas", "16:00"));
+            AddItemAsync(new Event(4, "Louis Armstrong", Genre.Jazz, "New Orleans", "19:00"));
+            AddItemAsync(new Event(5, "Neck Deep", Genre.Rock, "Wrexham", "20:00"));
+            AddItemAsync(new Event(6, "The 1975", Genre.Rock, "Wilmslow", "23:00"));
+            AddItemAsync(new Event(7, "L’Orange", Genre.HipHop, "North Carolina", "8:00"));
         }
     }
 }

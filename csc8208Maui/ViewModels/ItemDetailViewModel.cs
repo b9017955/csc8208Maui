@@ -45,7 +45,7 @@ namespace csc8208Maui.ViewModels
         {
             try
             {
-                var item = await DataStore.GetItemAsync(itemId);
+                var item = await DataStore.GetItemAsync(int.Parse(itemId));
                 Id = item.Id;
                 Text = item.Text;
                 Description = item.Description;

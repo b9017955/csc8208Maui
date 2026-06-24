@@ -1,0 +1,15 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "C#: csc8208Maui [Google Pixel 6A]",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/csc8208Maui/csc8208Maui.csproj",
+            "launchConfigurationId": "adb-28301JEGR15010-i1Hu5Z._adb-tls-connect._tcp"
+        }
+    ]
+}
