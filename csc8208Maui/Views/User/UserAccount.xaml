@@ -1,59 +1,63 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:viewmodel="clr-namespace:csc8208Maui.ViewModels.User"
-             xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.MAUI.Controls"
-             x:DataType="viewmodel:UserAccountViewModel"
-             x:Class="csc8208Maui.Views.User.UserAccount"
-             Style="{StaticResource ContentStyle}">
+<ContentPage 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+
+    xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.MAUI.Controls"
+
+    
+    x:Class="csc8208Maui.Views.User.UserAccount"
+    Style="{StaticResource ContentStyle}">
     
     <StackLayout Margin="20,35,20,25">
         <Label Text="{Binding Firstname}"/>
         <Label Text="{Binding Surname}"/>
         <Label Text="{Binding Email}"/>
+
         <CollectionView 
         x:Name="ListOfTickets" 
-        ItemsSource="{Binding Tickets}" 
-        >
-
-        <CollectionView.ItemTemplate>
-            <DataTemplate>
-                <Border
-                    Stroke="#022026"
-                    StrokeThickness="2"
-                    Margin="0,0,0,10"
-                    Padding="20">
-                    <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="20" />
-                    </Border.StrokeShape>
-                        <StackLayout Margin="10, 5, 10, 5">
-                            <StackLayout Orientation="Horizontal">
-                                <Label Text="{Binding Artist}" 
-                                   TextColor="#F23005"
-                                   FontSize="Large"
-                                   FontAttributes="Bold"
-                                   HorizontalOptions="StartAndExpand"/>
-                                <Label Text="{Binding MusicGenre}"
-                                    TextColor="#F2561D"
-                                    HorizontalOptions="EndAndExpand"
-                                    VerticalOptions="Center"/>
-                            </StackLayout>
-                            <Label Text="{Binding EventLocation}"/>
-                            <Label Text="{Binding DoorsOpen}"/>
-                            <Label Text="{Binding EventName}"/>
-                            <zxing:BarcodeGeneratorView
-                                Value="{Binding QRCode, FallbackValue='1'}"
-                                Format="QrCode"
-                                HorizontalOptions="FillAndExpand"
-                                VerticalOptions="FillAndExpand"
-                                BackgroundColor="White"/>
-                            <Button ImageSource="icon_fullscreen.png" Scale="0.2" HeightRequest="35" WidthRequest="35" BackgroundColor="White" HorizontalOptions="Start">
-                            </Button>
-                        </StackLayout>
+        ItemsSource="{Binding Tickets}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
                     
-                </Border>
-            </DataTemplate>
-        </CollectionView.ItemTemplate>
-    </CollectionView>
+                    <Border
+                        Stroke="#FF031C01"
+                        StrokeThickness="2"
+                        Margin="0,0,0,10"
+                        Padding="20">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="20" />
+                        </Border.StrokeShape>
+                        
+                            <StackLayout Margin="10, 5, 10, 5">
+                                <Label Text="{Binding Artist,FallbackValue='FAILURE'}"/>
+                                <StackLayout Orientation="Horizontal">
+                                    <Label Text="{Binding Artist, FallbackValue='Failure'}" 
+                                    TextColor="#F23005"
+                                    FontSize="Large"
+                                    FontAttributes="Bold"
+                                    HorizontalOptions="StartAndExpand"/>
+                                    <Label Text="{Binding MusicGenre}"
+                                        TextColor="#F2561D"
+                                        HorizontalOptions="EndAndExpand"
+                                        VerticalOptions="Center"/>
+                                </StackLayout>
+                                <Label Text="{Binding EventLocation}"/>
+                                <Label Text="{Binding DoorsOpen}"/>
+                                <Label Text="{Binding EventName}"/>
+                                <zxing:BarcodeGeneratorView
+                                    Value="{Binding QRCode, FallbackValue='00000000'}"
+                                    Format="QrCode"
+                                    HeightRequest="200"
+                                    BackgroundColor="White"/>
+                                <Button ImageSource="icon_fullscreen.png" Scale="0.2" HeightRequest="35" WidthRequest="35" BackgroundColor="White" HorizontalOptions="Start">
+                                </Button>
+                            </StackLayout>
+                        
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+        
     </StackLayout>
 </ContentPage>

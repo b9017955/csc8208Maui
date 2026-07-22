@@ -28,7 +28,7 @@ namespace csc8208Maui.ViewModels
     class UserViewModel : BaseViewModel
     {
         //Todo: compare this viewmodel with UserAccountViewModel and remove duplicate code FROM THIS VIEWMODEL
-        private UserTickets userTickets = new UserTickets();
+        private UserTicketStore userTickets = new UserTicketStore();
         //public ObservableCollection<Ticket> Tickets { get; set; }
         private EventStore events = new EventStore();
         public ObservableCollection<Event> Events { get; set; }

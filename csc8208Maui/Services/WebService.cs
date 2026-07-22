@@ -33,7 +33,7 @@ namespace csc8208Maui.Services
 {
     public static class WebService
     {
-        public static string BaseURL= "https://192.168.1.241:7288/api/";//"https://10.0.2.2:7288/api/";// "https://18.169.193.100/";
+        public static string BaseURL= "https://192.168.1.192:7288/api/";//"https://192.168.1.192:7288/api/";//"https://10.0.2.2:7288/api/";// "https://18.169.193.100/";
         static HttpClient client;
         public static Account account;
         public static string connectionFailureMessage = "Failed to connect to server, check network settings. Some features on this app will be unavailable until you reconnect to the internet.";
@@ -188,8 +188,15 @@ namespace csc8208Maui.Services
 
         //Testing
         public static void SanityCheck(){
-            var testResponse = client.GetAsync("Login/test").Result;
-            Console.WriteLine(testResponse);
+            try
+            {
+                var testResponse = client.GetAsync("Login/test").Result;
+                Console.WriteLine(testResponse);
+            }
+            catch
+            {
+                Console.WriteLine(connectionFailureMessage);
+            }
         }
         
         public static (bool success, string message) Register(string emailAddress, string password, string firstName, string secondName, bool verifier)
@@ -402,7 +409,7 @@ namespace csc8208Maui.Services
             }
         }
 
-        public static async Task<UserTickets> GetTickets()
+        public static async Task<UserTicketStore> GetTickets()
         {
             try
             {
@@ -410,7 +417,7 @@ namespace csc8208Maui.Services
                 if (response.IsSuccessStatusCode)
                 {
                     var responseBody = response.Content.ReadAsStringAsync().Result;// Needs deserialising <-------------------------
-                    return new UserTickets();
+                    return new UserTicketStore();
                 }
                 else
                 {

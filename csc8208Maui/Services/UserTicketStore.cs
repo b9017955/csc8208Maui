@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace csc8208Maui.Services
 {
-    public class UserTickets : IDataStore<Ticket>
+    public class UserTicketStore : IDataStore<Ticket>
     {
         public readonly List<Ticket> userTickets = new List<Ticket>();
         public async Task<bool> AddItemAsync(Ticket item)

@@ -29,21 +29,9 @@ namespace csc8208Maui.ViewModels.User
         string surname;
         [ObservableProperty]
         string email;
-
-        private UserTickets userTickets = new UserTickets();
+        private UserTicketStore userTicketStore = new UserTicketStore();
+        [ObservableProperty]
         private ObservableCollection<Ticket> tickets = new ObservableCollection<Ticket>();
-        public ObservableCollection<Ticket> Tickets 
-        { 
-            get 
-            {
-                return tickets;    
-            } 
-            set 
-            {
-                tickets = value; 
-                OnPropertyChanged(nameof(Tickets)); 
-            } 
-        }
         public Command LogoutCommand { get; }
         public Command SettingsCommand { get; }
         //public EncodingOptions BarcodeOptions => new EncodingOptions() { Height = 300, Width = 300, PureBarcode = true };
@@ -76,7 +64,7 @@ namespace csc8208Maui.ViewModels.User
 
         private void OnTimerElapsed(object sender, ElapsedEventArgs e)
         {
-            Device.BeginInvokeOnMainThread(() => RegenerateQRCodes("AUTOREGEN"));
+            Device.BeginInvokeOnMainThread(() => UpdateTickets("AUTOREGEN"));
         }
 
         public async void UpdateTickets(string msg)
@@ -86,7 +74,7 @@ namespace csc8208Maui.ViewModels.User
             Console.WriteLine($"{msg}:^{serialisedTickets}");
             if (serialisedTickets != null)
             {
-                userTickets = JsonConvert.DeserializeObject<UserTickets>(serialisedTickets);
+                userTicketStore = JsonConvert.DeserializeObject<UserTicketStore>(serialisedTickets);
                 
             }
             else
@@ -94,11 +82,11 @@ namespace csc8208Maui.ViewModels.User
                 Console.WriteLine($"{msg}:^No tickets");
             }
             // Try to download tickets from server, if they differ from the locally stored tickets then overwrite local storage.
-            var downloadedTickets = await WebService.GetTickets();
+            /* var downloadedTickets = await WebService.GetTickets();
             if(downloadedTickets!=null)
             {
-                userTickets = downloadedTickets;
-            }
+                userTicketStore = downloadedTickets;
+            } */
             RegenerateQRCodes(msg);
         }
 
@@ -107,7 +95,7 @@ namespace csc8208Maui.ViewModels.User
             Console.WriteLine($"{msg}:^Regenerating QR Codes");
 
             var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-            var serialisedTimeStamp = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(timestamp);
+            byte[] serialisedTimeStamp = BitConverter.GetBytes(timestamp);
             byte[] timeStampHash = SHA256.HashData(serialisedTimeStamp);
 
             //Console.WriteLine($"£ENCRYPTION PUBLIC KEY:{Convert.ToBase64String(AppSignaturePublicKey.Q.GetEncoded())}");
@@ -115,14 +103,14 @@ namespace csc8208Maui.ViewModels.User
             string encodedTimeStamp = Convert.ToBase64String(serialisedTimeStamp);
             string encodedAppSignedTimeStamp = Serialisers.SerialiseSignature(appSignedTimeStamp);
 
-            foreach (Ticket ticket in userTickets.userTickets)
+            foreach (Ticket ticket in userTicketStore.userTickets)
             {
                 string serverSignedTicket = ticket.ServerSignedTicket;
                 ticket.QRCode = $"{serverSignedTicket},{encodedTimeStamp},{encodedAppSignedTimeStamp}";
                 Console.WriteLine($"{msg}:^Fresh Timestamp: {ticket.QRCode}");
             }
             Console.WriteLine($"{msg}: ^Tickets length BEFORE= {Tickets.Count}");
-            Tickets = new ObservableCollection<Ticket>(userTickets.GetItemsAsync(false).Result);
+            Tickets = new ObservableCollection<Ticket>(userTicketStore.GetItemsAsync(false).Result);
             Console.WriteLine($"{msg}: ^Tickets length AFTER= {Tickets.Count}");
         }
 

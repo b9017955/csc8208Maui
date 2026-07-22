@@ -9,7 +9,7 @@
             <Label Text="Music" FontAttributes="Bold" FontSize="Medium"/>
             <Label Text="Filter" TextColor="#15A0BF" HorizontalOptions="EndAndExpand" Padding="5"/>
         </StackLayout>
-            <ListView x:Name="ListOfEvents" 
+        <ListView x:Name="ListOfEvents" 
                   ItemsSource="{Binding Events}" 
                   RowHeight="175"
                   SelectedItem="{Binding SelectedEvent, Mode=TwoWay}">
