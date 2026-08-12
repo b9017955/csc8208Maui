@@ -154,7 +154,7 @@ namespace csc8208Maui.Services
             return (decision, decisionDetails);
         }
 
-        public static void InitialiseSignatureSigning()
+        private static void InitialiseSignatureSigning()
         {
             ecdsa = new ECDsaSigner();
             parameters = new ECDomainParameters(curve.Curve, curve.G, curve.N, curve.H);
@@ -187,7 +187,7 @@ namespace csc8208Maui.Services
         }
 
         //Testing
-        public static void SanityCheck(){
+        private static void SanityCheck(){
             try
             {
                 var testResponse = client.GetAsync("Login/test").Result;
@@ -431,35 +431,22 @@ namespace csc8208Maui.Services
             
         }
         
-        public static async Task<(Account accountInfo, Ticket ticketInfo)> VerifyTicket((int ticket_id, int[] signed_ticket_id) serverSignatureOnTicketHash)
+        public static async Task<(AccountDTO accountInfo, EventDTO eventInfo)> GetTicketInfo(string encodedTicketHash)
         {
-            /*var account = new Account("Joe", "Blogs", "joeblogs@email.com", false);
-            account.appPublicKey = SecureStorage.GetAsync("DEBUGPUBLICKEY").Result;
-            return (null, null);
-            return (account, new Ticket("0", "The Hunna", Genre.Rock, "Hunna Fever", "Watford", "19:00", null, null));//REMOVE THIS*/
-            var ticketPayload = new { ticket_id = serverSignatureOnTicketHash.ticket_id, serverSignatureOnTicketHash.signed_ticket_id };
-            var ticketPayloadJSON = JsonConvert.SerializeObject(ticketPayload);
-            var content = new StringContent(ticketPayloadJSON, Encoding.UTF8, "application/json");
-            Console.WriteLine($"SENDING FOR VALIDATION: {ticketPayloadJSON}");
-            try
+            var response = await client.PostAsJsonAsync("Ticket/GetTicketInfo", encodedTicketHash);
+            if (response.IsSuccessStatusCode)
             {
-                var response = await client.PostAsync("ValidateTicket", content);
-                if (response.IsSuccessStatusCode)
-                {
-                    var responseBody = response.Content.ReadAsStringAsync().Result;// Needs deserialising <-------------------------
-                    Console.WriteLine($"VALIDATION RESPONSE: {responseBody}");
-                    return (null,null);
-                }
-                else
-                {
-                    return (null, null);
-                }
+                string encodedTicketInfo = response.Content.ReadAsStringAsync().Result;
+                (AccountDTO,EventDTO) ticketInfo = JsonConvert.DeserializeObject<(AccountDTO,EventDTO)>(encodedTicketInfo);
+                return ticketInfo;
             }
-            catch
+            else
             {
-                return (null, null);
+                Console.WriteLine($"Unable to retrieve ticket info, server responded with '{response.StatusCode} {response.Content}'");
+                return (null,null);
             }
         }
+
 
         public static void SetHTTPHeaders(string JWT)
         {

@@ -5,6 +5,6 @@
         public DateTime dateTime { get; set; }
         public string name { get; set; }
         public string venue { get; set; }
-        public Genre genre { get; set; }
+        public GenreDTO genre { get; set; }
     }
 

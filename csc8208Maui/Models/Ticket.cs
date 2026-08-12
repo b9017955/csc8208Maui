@@ -8,7 +8,6 @@ namespace csc8208Maui.Models
 {
     public class Ticket
     {
-        public int ID { get; set; }
         public string Artist { get; set; }
         public Genre MusicGenre { get; set; }
         public string EventName { get; set; }
@@ -17,9 +16,8 @@ namespace csc8208Maui.Models
         public string QRCode { get; set;}
         //BigInteger[] encoded as Base64 string
         public string ServerSignedTicket { get; set; }
-        public Ticket(int id, string artist, Genre genre, string eventName, string eventLocation, string doorsOpen, string serverSignedTicket)
+        public Ticket(string artist, Genre genre, string eventName, string eventLocation, string doorsOpen, string serverSignedTicket)
         {
-            ID = id;
             Artist = artist;
             MusicGenre = genre;
             EventName = eventName;

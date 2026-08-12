@@ -18,6 +18,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using System.Security.Cryptography;
 using Org.BouncyCastle.Math;
 using System.Buffers.Text;
+using CommunityToolkit.Mvvm.Input;
 
 namespace csc8208Maui.ViewModels.User
 {
@@ -29,13 +30,14 @@ namespace csc8208Maui.ViewModels.User
         string surname;
         [ObservableProperty]
         string email;
-        private UserTicketStore userTicketStore = new UserTicketStore();
+        private UserTicketStore userTicketStore;
         [ObservableProperty]
         private ObservableCollection<Ticket> tickets = new ObservableCollection<Ticket>();
         public Command LogoutCommand { get; }
         public Command SettingsCommand { get; }
         //public EncodingOptions BarcodeOptions => new EncodingOptions() { Height = 300, Width = 300, PureBarcode = true };
         private System.Timers.Timer timer;
+
         
 
         public UserAccountViewModel()
@@ -52,6 +54,14 @@ namespace csc8208Maui.ViewModels.User
             firstname = WebService.account.firstName;
             surname = WebService.account.secondName;
             email = WebService.account.emailAddress;
+
+            userTicketStore = new UserTicketStore();
+        }
+
+        [RelayCommand]
+        public void DebugDeleteLocalTickets()
+        {    
+            userTicketStore.DeleteAllItems();
         }
 
         private void StartTimer()
@@ -70,17 +80,7 @@ namespace csc8208Maui.ViewModels.User
         public async void UpdateTickets(string msg)
         {
             // When the tickets were purchased they should have been stored to local storage, so first check SecureStorage
-            string serialisedTickets = SecureStorage.GetAsync("tickets").Result;
-            Console.WriteLine($"{msg}:^{serialisedTickets}");
-            if (serialisedTickets != null)
-            {
-                userTicketStore = JsonConvert.DeserializeObject<UserTicketStore>(serialisedTickets);
-                
-            }
-            else
-            {
-                Console.WriteLine($"{msg}:^No tickets");
-            }
+            userTicketStore.RetrieveFromSecureStorage();
             // Try to download tickets from server, if they differ from the locally stored tickets then overwrite local storage.
             /* var downloadedTickets = await WebService.GetTickets();
             if(downloadedTickets!=null)
@@ -102,8 +102,8 @@ namespace csc8208Maui.ViewModels.User
             BigInteger[] appSignedTimeStamp = WebService.GenerateAppSignature(timeStampHash);
             string encodedTimeStamp = Convert.ToBase64String(serialisedTimeStamp);
             string encodedAppSignedTimeStamp = Serialisers.SerialiseSignature(appSignedTimeStamp);
-
-            foreach (Ticket ticket in userTicketStore.userTickets)
+            List<Ticket> userTickets = (List<Ticket>) userTicketStore.GetItemsAsync().Result;
+            foreach (Ticket ticket in userTickets)
             {
                 string serverSignedTicket = ticket.ServerSignedTicket;
                 ticket.QRCode = $"{serverSignedTicket},{encodedTimeStamp},{encodedAppSignedTimeStamp}";

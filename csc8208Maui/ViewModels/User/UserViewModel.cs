@@ -21,16 +21,17 @@ using Microsoft.Maui;
 using Microsoft.Maui.Storage;
 using Microsoft.Maui.Devices.Sensors;
 using Org.BouncyCastle.Math;
+using CommunityToolkit.Mvvm.Input;
 
 namespace csc8208Maui.ViewModels
 {
     //There will be some code duplication between this and the verifier viewmodel e.g. both need to be able to logout.
-    class UserViewModel : BaseViewModel
+    partial class UserViewModel : BaseViewModel
     {
         //Todo: compare this viewmodel with UserAccountViewModel and remove duplicate code FROM THIS VIEWMODEL
-        private UserTicketStore userTickets = new UserTicketStore();
+        private UserTicketStore userTickets;
         //public ObservableCollection<Ticket> Tickets { get; set; }
-        private EventStore events = new EventStore();
+        private EventStore events;
         public ObservableCollection<Event> Events { get; set; }
         public ObservableCollection<Event> FeaturedEvent { get; set; }
         private Event selectedEvent;
@@ -55,7 +56,7 @@ namespace csc8208Maui.ViewModels
         {
             LogoutCommand = new Command(OnSignOutButtonClicked);
             SettingsCommand = new Command(OnSettingsButtonClicked);
-
+            events = new EventStore();
             events.GenerateFakeData();
             //GenerateEvents();
             //SecureStorage.Remove("tickets");//DEBUG CODE
@@ -64,6 +65,7 @@ namespace csc8208Maui.ViewModels
             Events = new ObservableCollection<Event>(events.GetItemsAsync(false).Result);
             FeaturedEvent = new ObservableCollection<Event>();
             FeaturedEvent.Add(Events.FirstOrDefault());
+            userTickets  = new UserTicketStore();
         }
 
         private async void BuyTicket(Event selectedEvent)
@@ -81,17 +83,14 @@ namespace csc8208Maui.ViewModels
             catch
             {
                 Console.WriteLine("ERROR COMMUNICATING WITH SERVER");
-                SelectedEvent = null;
+                selectedEvent = null;
                 return;
             }
 
             if (signedTicket != null)
             {
-                Ticket newTicket = new Ticket(0, selectedEvent.Artist, selectedEvent.MusicGenre, "EVENT_NAME", selectedEvent.Location, selectedEvent.DoorsOpen, signedTicket);//Ticket.ID is unneccessary in the app, the server does not send the app the ticket ID. The ticket is uniquely identified by the ServersSignature(Hash(Ticket)) 
+                Ticket newTicket = new Ticket(selectedEvent.Artist, selectedEvent.MusicGenre, "EVENT_NAME", selectedEvent.Location, selectedEvent.DoorsOpen, signedTicket);
                 await userTickets.AddItemAsync(newTicket);
-                var serialisedTickets = JsonConvert.SerializeObject(userTickets);
-                Console.WriteLine($"^INPUT_serialisedTickets:{serialisedTickets}");
-                SecureStorage.SetAsync("tickets", serialisedTickets);
                 //CrossToastPopUp.Current.ShowToastSuccess($"Successfully purchased ticket to see {selectedEvent.Artist}");
             }
             else
@@ -100,7 +99,7 @@ namespace csc8208Maui.ViewModels
             }
             //stopwatch.Stop();
             //Console.WriteLine($"Time taken to Buy Ticket: {stopwatch.Elapsed.TotalMilliseconds} ms");
-            SelectedEvent = null;
+            selectedEvent = null;
         }
 
         private async void GenerateEvents()

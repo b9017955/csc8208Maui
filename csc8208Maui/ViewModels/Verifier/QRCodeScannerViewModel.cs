@@ -35,10 +35,18 @@ public partial class QRCodeScannerViewModel : ObservableObject
             return;
         }
         Console.WriteLine($"Barcode Data: {scannedEncodedQRCodeData}");
-        // QR Code Data "{serverSignedTicket},{appTimeStamp},{appSignedTimeStamp}"
+        // QR Code Data "{tickethash,r,s},{appTimeStamp},{appSignedTimeStampR appSignedTimeStampS}"
         //=========================================================================================================================================================
         // TODO CODE FOR VERIFYING TICKET AND TIMESTAMP
         
+        //VERIFY SERVERSIGNED TICKET USING SERVER PUBLIC KEY
+        (AccountDTO,EventDTO) ticketInfo = WebService.GetTicketInfo(scannedEncodedQRCodeData.Split(',')[0]).Result;
+        
+
+        //SEND TICKETHASH TO SERVER AND RECEIVE EVENTINFO
+
+        //VERIFY APP TIMESTAMP
+
         //await Shell.Current.Navigation.PushAsync(new QRCodeDecisionPage(SelectedEvent, overallDecision, overallDecisionDetails));
     }
 
