@@ -28,6 +28,8 @@ using System.Diagnostics;
 using Java.Lang;
 //using System.Security.Cryptography;
 using System.Runtime.Intrinsics.Arm;
+using Android.Service.Controls.Actions;
+using System.ComponentModel;
 
 namespace csc8208Maui.Services
 {
@@ -447,7 +449,24 @@ namespace csc8208Maui.Services
             }
         }
 
+        public static async Task<bool> VerifyTicket(byte[] ticketHash, BigInteger[] signature)
+        {
+            var response = client.GetAsync("Ticket/GetServerPublicKey").Result;
+            if (response.IsSuccessStatusCode)
+            {
+                var encodedServerPublicKeyPoint = Convert.FromBase64String(response.Content.ReadAsStringAsync().Result);
+                var serverPublicKeyPoint = parameters.Curve.DecodePoint(encodedServerPublicKeyPoint);
+                var serverPublicKey = new ECPublicKeyParameters(serverPublicKeyPoint, parameters);
+                ecdsa.Init(false, serverPublicKey);
+                return ecdsa.VerifySignature(ticketHash, signature[0], signature[1]);
 
+            }
+            else
+            {
+                throw new InvalidOperationException("Error retrieving public key from server");
+            }
+            
+        }
         public static void SetHTTPHeaders(string JWT)
         {
             client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", JWT);

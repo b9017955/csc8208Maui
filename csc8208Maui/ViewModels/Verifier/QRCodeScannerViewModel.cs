@@ -1,10 +1,12 @@
 using System;
 using System.Data;
 using System.Diagnostics;
+using System.Numerics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using csc8208Maui.Models;
 using csc8208Maui.Services;
 using csc8208Maui.Views.Verifier;
+using Java.Lang;
 using Newtonsoft.Json;
 using ZXing.Net.Maui;
 
@@ -12,6 +14,8 @@ namespace csc8208Maui.ViewModels.Verifier;
 
 public partial class QRCodeScannerViewModel : ObservableObject
 {
+    [ObservableProperty]
+    int timestampExpiration=30000000;
     [ObservableProperty]
     Event selectedEvent;
 
@@ -28,26 +32,55 @@ public partial class QRCodeScannerViewModel : ObservableObject
         Stopwatch stopwatch = new Stopwatch();
         stopwatch.Start();
 
-        string scannedEncodedQRCodeData = e.Results?.FirstOrDefault().Value;
-        if (scannedEncodedQRCodeData is null)
+        string rawQRCodeData = e.Results?.FirstOrDefault().Value;
+        if (rawQRCodeData is null)
         {
             await Shell.Current.Navigation.PushAsync(new QRCodeDecisionPage(SelectedEvent, 0, "ERROR SCANNING QR CODE"));
             return;
         }
-        Console.WriteLine($"Barcode Data: {scannedEncodedQRCodeData}");
+        Console.WriteLine($"Barcode Data: {rawQRCodeData}");
         // QR Code Data "{tickethash,r,s},{appTimeStamp},{appSignedTimeStampR appSignedTimeStampS}"
         //=========================================================================================================================================================
         // TODO CODE FOR VERIFYING TICKET AND TIMESTAMP
-        
+        string[] QRCodeComponents = rawQRCodeData.Split(',');
+        string encodedTicketHash = QRCodeComponents[0];
+        string encodedServerSignature = $"{QRCodeComponents[1]},{QRCodeComponents[2]},";
+        string encodedTimeStamp = QRCodeComponents[3];
+        string encodedAppSignature = $"{QRCodeComponents[4]},{QRCodeComponents[5]},";
+
         //VERIFY SERVERSIGNED TICKET USING SERVER PUBLIC KEY
-        (AccountDTO,EventDTO) ticketInfo = WebService.GetTicketInfo(scannedEncodedQRCodeData.Split(',')[0]).Result;
-        
-
-        //SEND TICKETHASH TO SERVER AND RECEIVE EVENTINFO
-
-        //VERIFY APP TIMESTAMP
-
-        //await Shell.Current.Navigation.PushAsync(new QRCodeDecisionPage(SelectedEvent, overallDecision, overallDecisionDetails));
+        byte[] ticketHash = Convert.FromBase64String(encodedTicketHash);
+        var serverSignature = Serialisers.DeserialiseSignature(encodedServerSignature);
+        bool ticketIsAuthentic = WebService.VerifyTicket(ticketHash, serverSignature).Result;
+        if (ticketIsAuthentic)
+        {
+            //SEND TICKETHASH TO SERVER AND RECEIVE EVENTINFO
+            var ticketInfo = WebService.GetTicketInfo(rawQRCodeData.Split(',')[0]).Result;
+            //ENSURE TICKET DETAILS MATCH THIS EVENT
+            if(ticketInfo.eventInfo.id == selectedEvent.ID)
+            {
+                //VERIFY APP TIMESTAMP
+                byte[] serialisedTimeStamp = Convert.FromBase64String(encodedTimeStamp);
+                long timeStamp = BitConverter.ToInt64(serialisedTimeStamp);
+                long timeStampAge = DateTimeOffset.UtcNow.ToUnixTimeSeconds() - timeStamp;
+                if(timeStampAge < TimestampExpiration)
+                {
+                    await Shell.Current.Navigation.PushAsync(new QRCodeDecisionPage(SelectedEvent, 1, "APPROVED"));
+                }
+                else
+                {
+                    await Shell.Current.Navigation.PushAsync(new QRCodeDecisionPage(SelectedEvent, 2, "TIMESTAMP IS STALE OR INVALID, CHECK ID"));
+                }
+            }
+            else
+            {
+                await Shell.Current.Navigation.PushAsync(new QRCodeDecisionPage(SelectedEvent, 0, "TICKET NOT VALID FOR EVENT"));
+            }
+        }
+        else
+        {
+            await Shell.Current.Navigation.PushAsync(new QRCodeDecisionPage(SelectedEvent, 0, "TICKET IS NOT VALID"));
+        }
     }
 
 }

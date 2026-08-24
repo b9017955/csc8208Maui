@@ -15,6 +15,7 @@ namespace csc8208Maui.Views.Verifier
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class QRCodeDecisionPage : ContentPage
     {
+        //decision 0 denied, decision 1 approved, decision 2 further action required
         public QRCodeDecisionPage(Event eventBeingScanned, int decision, string decisionDetails)
         {
             InitializeComponent();

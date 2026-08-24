@@ -11,5 +11,6 @@
         public string email { get; set; }
         public string password { get; set; }
         public AccountType type { get; set; }
+        public ICollection<ClientPublicKeyDTO> clientPublicKeys { get; set; }
     }
 
