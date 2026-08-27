@@ -54,6 +54,12 @@ namespace csc8208Maui.ViewModels.Verifier
                 OnPropertyChanged(nameof(DecisionDetails));
             }
         }
+        public Command GoBackCommand {get;}
+        private async void OnBackClicked(object obj)
+        {
+            await Shell.Current.Navigation.PopAsync();
+            Console.WriteLine("Go Back Clicked");
+        }
 
 
         public QRCodeDecisionViewModel(Event selectedEvent, int decision, string decisionDetails)
@@ -61,6 +67,7 @@ namespace csc8208Maui.ViewModels.Verifier
             this.selectedEvent = selectedEvent;
             this.decision = decision;
             this.decisionDetails = decisionDetails;
+            GoBackCommand = new Command(OnBackClicked);
         }
     }
 }

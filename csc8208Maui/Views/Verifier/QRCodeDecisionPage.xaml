@@ -10,6 +10,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="15"/>
                 <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <Label Text="{Binding SelectedEvent.DoorsOpen}" Grid.Row="0"/>
             <Frame BorderColor="Black"
@@ -57,6 +58,11 @@
                            HorizontalTextAlignment="Center"/>
                 </StackLayout>
             </Frame>
+            <Button Text="BACK" 
+                VerticalOptions="Center"
+                HorizontalOptions="Center"
+                Command= "{Binding GoBackCommand}" 
+                Grid.Row="2"/>
         </Grid>
     </ContentPage.Content>
 </ContentPage>

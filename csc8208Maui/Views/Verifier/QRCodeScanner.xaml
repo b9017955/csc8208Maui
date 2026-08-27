@@ -10,10 +10,14 @@
     x:DataType="viewmodel:QRCodeScannerViewModel"
     Style="{StaticResource TabStyle}">
 
-    <VerticalStackLayout>
+    <VerticalStackLayout Spacing="200">
         <zxing:CameraBarcodeReaderView
             x:Name="cameraBarcodeReaderView"
             BarcodesDetected="BarcodeReader"
             />
+        <Button Text="BACK" 
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            Command= "{Binding GoBackCommand}"/>
     </VerticalStackLayout>
 </ContentPage>
