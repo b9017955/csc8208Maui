@@ -8,9 +8,9 @@
     <ContentPage.Content>
         <Grid Margin="25,25,25,30">
             <Grid.RowDefinitions>
-                <RowDefinition Height="15"/>
+                <RowDefinition Height="25"/>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="50"/>
             </Grid.RowDefinitions>
             <Label Text="{Binding SelectedEvent.DoorsOpen}" Grid.Row="0"/>
             <Frame BorderColor="Black"

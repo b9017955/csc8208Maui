@@ -66,7 +66,7 @@ public partial class QRCodeScannerViewModel : ObservableObject
             if (ticketIsAuthentic)
             {
                 //SEND TICKETHASH TO SERVER AND RECEIVE EVENTINFO
-                var ticketInfo = WebService.GetTicketInfo(rawQRCodeData.Split(',')[0]).Result;
+                var ticketInfo = WebService.GetTicketInfo(encodedTicketHash).Result;
                 //ENSURE TICKET DETAILS MATCH THIS EVENT
                 if(ticketInfo.eventInfo is not null && ticketInfo.eventInfo.id == SelectedEvent.ID)
                 {
@@ -96,6 +96,7 @@ public partial class QRCodeScannerViewModel : ObservableObject
         catch(System.Exception barcodeReadException)
         {
             Console.WriteLine($"Error whilst extracting ticket from barcode with exception {barcodeReadException}");
+            await Shell.Current.Navigation.PushAsync(new QRCodeDecisionPage(SelectedEvent, 0, "TICKET IS NOT VALID"));
         }
         
     }
