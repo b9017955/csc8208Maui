@@ -20,9 +20,9 @@ namespace csc8208Maui
                 })
                 .UseBarcodeReader();
 
-#if DEBUG
+            #if DEBUG
     		builder.Logging.AddDebug();
-#endif
+            #endif
             builder.Services.AddSingleton<LoginPage>();//login
             builder.Services.AddSingleton<VerifierLandingPage>();
             builder.Services.AddSingleton<UserLandingPage>();
