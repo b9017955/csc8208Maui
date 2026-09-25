@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using csc8208Maui.Views;
+using csc8208Maui.Views.User;
+using csc8208Maui.Views.Verifier;
+using Microsoft.Extensions.Logging;
 using ZXing.Net.Maui.Controls;
 
 namespace csc8208Maui
@@ -20,7 +23,10 @@ namespace csc8208Maui
 #if DEBUG
     		builder.Logging.AddDebug();
 #endif
-
+            builder.Services.AddSingleton<LoginPage>();//login
+            builder.Services.AddSingleton<VerifierLandingPage>();
+            builder.Services.AddSingleton<UserLandingPage>();
+            
             return builder.Build();
         }
     }

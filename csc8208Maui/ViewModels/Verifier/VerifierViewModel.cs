@@ -26,7 +26,6 @@ namespace csc8208Maui.ViewModels
         private EventStore todaysEvents = new EventStore();
         public ObservableCollection<Event> TodaysEventsList { get; set; }
 
-        public Command LogoutCommand { get; }
         public Command SettingsCommand { get; }
 
         private Event selectedEvent;
@@ -56,19 +55,18 @@ namespace csc8208Maui.ViewModels
         bool scannerVisible=false;
 
         [ObservableProperty]
-        string cameraViewHeight="0";
+        int cameraViewHeight=0;
 
         [ObservableProperty]
-        string listViewHeight="100";
+        int listViewHeight=100;
 
         public VerifierViewModel()
         {
-            LogoutCommand = new Command(SignOutButtonClicked);
             SettingsCommand = new Command(OnSettingsButtonClicked);
-            
             todaysEvents.GenerateFakeData();//Debug code
             //GenerateEvents();
             TodaysEventsList = new ObservableCollection<Event>(todaysEvents.GetItemsAsync(false).Result);
+            //selectedEvent = TodaysEventsList.FirstOrDefault();
             HideCameraView();
         }
 
@@ -85,30 +83,19 @@ namespace csc8208Maui.ViewModels
             }
         }
 
-        private async void SignOutButtonClicked(object obj)
-        {
-            if (WebService.Logout())
-            {
-                //Logout successful
-                await Shell.Current.GoToAsync($"//login");
-            }
-            else
-            {
-                Console.WriteLine(WebService.logoutErrorMessage);
-            }
-        }
+        
 
         private async void OnSettingsButtonClicked(object obj)
         {
-            await Shell.Current.GoToAsync($"verifier/{nameof(VerifierSettingsPage)}");
+            await Shell.Current.GoToAsync($"//verifier/{nameof(VerifierSettingsPage)}");
         }
 
         private async void ShowCameraView()
         {
             
             ScannerVisible=true;
-            CameraViewHeight="100";
-            ListViewHeight="0";
+            CameraViewHeight=100;
+            ListViewHeight=0;
             IsDetecting=true;
             await Shell.Current.Navigation.PushModalAsync(new QRCodeScanner(new QRCodeScannerViewModel(selectedEvent)));
             
@@ -117,8 +104,8 @@ namespace csc8208Maui.ViewModels
         private async void HideCameraView()
         {
             ScannerVisible=false;
-            CameraViewHeight="0";
-            ListViewHeight="100";
+            CameraViewHeight=0;
+            ListViewHeight=100;
             IsDetecting=false;
         }
 
@@ -128,67 +115,6 @@ namespace csc8208Maui.ViewModels
             Console.WriteLine($"Attempting to scan QR for event: {eventToBeScanned.ID}, {eventToBeScanned.Artist}, {eventToBeScanned.Location}");
             ShowCameraView();
             return;
-
-            //ZXing package unsupported; rewrite.
-            /*var scan = new QRCodeScanner(selectedEvent);
-            await Shell.Current.Navigation.PushModalAsync(new QRCodeScanner(selectedEvent));
-            scan.OnScanResult += (result) =>
-            {
-                Device.BeginInvokeOnMainThread(async () =>
-                {
-                    await Shell.Current.Navigation.PopModalAsync();
-                    Console.WriteLine($"QRCODE OUTPUT: {result.Text}");
-                    Console.WriteLine("Starting Timer...");
-                    Stopwatch stopwatch = new Stopwatch();
-                    stopwatch.Start();
-                    //Extract data from QR Code
-                    //WebService.InitialiseNewAppSignature();
-                    string scannedEncodedQRCodeData = result.Text;
-                    QRCode scannedQRCodeData;
-                    try
-                    {
-                        scannedQRCodeData = JsonConvert.DeserializeObject<QRCode>(scannedEncodedQRCodeData);
-                    }
-                    catch
-                    {
-                        await Shell.Current.Navigation.PushAsync(new QRCodeDecisionPage(SelectedEvent, 0, "ERROR SCANNING QR CODE"));
-                        SelectedEvent = null;
-                        return;
-                    }
-                    (Account accountInfo, Ticket ticketInfo) ticketInfoFromServer = WebService.VerifyTicket(scannedQRCodeData.serverSignedTicket).Result;
-                    (bool timeStampDecision, string timeStampDecisionDetails) timeStampVerificationOutcome = WebService.VerifyTimeStamp(scannedQRCodeData.appSignedTimeStamp, ticketInfoFromServer.accountInfo.appPublicKey);
-                    //(bool timeStampDecision, string timeStampDecisionDetails) timeStampVerificationOutcome = WebService.VerifyTimeStamp(scannedQRCodeData.appSignedTimeStamp, SecureStorage.GetAsync("DEBUGPUBLICKEY").Result);
-                    Console.WriteLine($"£ {timeStampVerificationOutcome.timeStampDecisionDetails}");
-                    
-                    int overallDecision;//0=Denied, 1=Approved, 2=Further Action Required
-                    string overallDecisionDetails;
-                    
-                    if (ticketInfoFromServer.accountInfo != null && ticketInfoFromServer.ticketInfo != null)
-                    {
-                        if (ticketInfoFromServer.ticketInfo.Artist.Equals(eventToBeScanned.Artist) &&
-                        ticketInfoFromServer.ticketInfo.EventLocation.Equals(eventToBeScanned.Location) &&
-                        ticketInfoFromServer.ticketInfo.DoorsOpen.Equals(eventToBeScanned.DoorsOpen))
-                        {
-                            overallDecision = timeStampVerificationOutcome.timeStampDecision ? 1 : 2;
-                            overallDecisionDetails = $"TICKET IS VALID::{timeStampVerificationOutcome.timeStampDecisionDetails}::FirstName:{ticketInfoFromServer.accountInfo.firstName}, SecondName:{ticketInfoFromServer.accountInfo.secondName}";
-                        }
-                        else
-                        {
-                            overallDecision = 0;
-                            overallDecisionDetails = $"TICKET IS NOT VALID FOR THIS EVENT::{timeStampVerificationOutcome.timeStampDecisionDetails}";
-                        }
-                    }
-                    else
-                    {
-                        overallDecision = 0;
-                        overallDecisionDetails = $"TICKET IS INVALID";
-                    }
-                    await Shell.Current.Navigation.PushAsync(new QRCodeDecisionPage(SelectedEvent, overallDecision, overallDecisionDetails));
-                    stopwatch.Stop();
-                    Console.WriteLine($"Time taken to verify QR Code: {stopwatch.Elapsed.TotalMilliseconds} ms");
-                    SelectedEvent = null;
-                });
-            }; */
         }
     }
 }

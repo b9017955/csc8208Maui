@@ -22,6 +22,7 @@ using Microsoft.Maui.Storage;
 using Microsoft.Maui.Devices.Sensors;
 using Org.BouncyCastle.Math;
 using CommunityToolkit.Mvvm.Input;
+using csc8208Maui.Lib;
 
 namespace csc8208Maui.ViewModels
 {
@@ -120,7 +121,7 @@ namespace csc8208Maui.ViewModels
             if (WebService.Logout())
             {
                 //Logout successful
-                await Shell.Current.GoToAsync($"//login");
+                SwitchShell.GoToLogin();
             }
             else
             {
@@ -130,7 +131,7 @@ namespace csc8208Maui.ViewModels
 
         private async void OnSettingsButtonClicked(object obj)
         {
-            await Shell.Current.GoToAsync($"user/{nameof(UserSettingsPage)}");
+            await Shell.Current.GoToAsync($"//user/{nameof(UserSettingsPage)}");
         }
     }
 }

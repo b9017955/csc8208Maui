@@ -46,7 +46,7 @@ namespace csc8208Maui.ViewModels
         private async void OnCancel()
         {
             // This will pop the current page off the navigation stack
-            await Shell.Current.GoToAsync("..");
+            //await Shell.Current.GoToAsync("..");
         }
 
         private async void OnSave()
@@ -61,7 +61,7 @@ namespace csc8208Maui.ViewModels
             await DataStore.AddItemAsync(newItem);
 
             // This will pop the current page off the navigation stack
-            await Shell.Current.GoToAsync("..");
+            //await Shell.Current.GoToAsync("..");
         }
     }
 }

@@ -7,16 +7,18 @@
     xmlns:verifier="clr-namespace:csc8208Maui.Views.Verifier"
     xmlns:user="clr-namespace:csc8208Maui.Views.User"
     Shell.FlyoutBehavior="Disabled"
-    Title="csc8208Maui">
+    Title="csc8208Maui"
+    
+    >
 
-    <ShellItem Route="login">
-        <ShellContent ContentTemplate="{DataTemplate local:LoginPage}"/>
+    <ShellItem >
+        <ShellContent ContentTemplate="{DataTemplate local:LoginPage}" Route="login"/>
     </ShellItem>
-    <ShellItem Route="verifier">
-        <ShellContent ContentTemplate="{DataTemplate verifier:VerifierLandingPage}"/>
+    <ShellItem >
+        <ShellContent ContentTemplate="{DataTemplate verifier:VerifierLandingPage}" Route="verifier"/>
     </ShellItem>
-    <ShellItem Route="user">
-        <ShellContent ContentTemplate="{DataTemplate user:UserLandingPage}"/>
+    <ShellItem >
+        <ShellContent ContentTemplate="{DataTemplate user:UserLandingPage}" Route="user"/>
     </ShellItem>
 
     <Shell.Resources>

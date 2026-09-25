@@ -12,9 +12,11 @@ namespace csc8208Maui
         public AppShell()
         {
             InitializeComponent();
-            Routing.RegisterRoute($"user/{nameof(UserSettingsPage)}",typeof(UserSettingsPage));
-            Routing.RegisterRoute($"verifier/{nameof(VerifierSettingsPage)}", typeof(VerifierSettingsPage));
-            Routing.RegisterRoute($"login/{nameof(RegistrationPage)}", typeof(RegistrationPage));
+            //Routing.RegisterRoute($"user/{nameof(UserSettingsPage)}",typeof(UserSettingsPage));
+            //Routing.RegisterRoute($"verifier/{nameof(VerifierSettingsPage)}", typeof(VerifierSettingsPage));
+            //Routing.RegisterRoute($"login/{nameof(RegistrationPage)}", typeof(RegistrationPage));
+            //Routing.RegisterRoute($"verifier/{nameof(VerifierLandingPage)}/{nameof(VerifierHome)}", typeof(VerifierHome));
+            
         }
     }
 }

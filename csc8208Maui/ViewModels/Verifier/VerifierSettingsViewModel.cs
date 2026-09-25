@@ -5,6 +5,10 @@ using System.Text;
 using Microsoft.Maui.Controls.Compatibility;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui;
+using csc8208Maui.Services;
+using Microsoft.Maui.Controls.PlatformConfiguration.AndroidSpecific;
+using Microsoft.Maui.Controls.PlatformConfiguration;
+using csc8208Maui.Lib;
 
 namespace csc8208Maui.ViewModels
 {
@@ -18,7 +22,14 @@ namespace csc8208Maui.ViewModels
         private async void OnSignOutButtonClicked(object obj)
         {
             //TODO: Code for signing out.
-            await Shell.Current.GoToAsync($"//login");
+            WebService.Logout();
+            //await Shell.Current.DisplayAlertAsync("test","test message", "alright");
+            //await Shell.Current.GoToAsync("//verifier");
+            //await Shell.Current.GoToAsync("//login/LoginPage");
+            // Get the current navigation stack within the active Tab
+            
+            //await Shell.Current.GoToAsync("//login");
+            SwitchShell.GoToLogin();
         }
     }
 }

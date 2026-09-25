@@ -19,6 +19,7 @@ using System.Security.Cryptography;
 using Org.BouncyCastle.Math;
 using System.Buffers.Text;
 using CommunityToolkit.Mvvm.Input;
+using csc8208Maui.Lib;
 
 namespace csc8208Maui.ViewModels.User
 {
@@ -51,9 +52,7 @@ namespace csc8208Maui.ViewModels.User
             //DebugGenerateQRCode();
 
             StartTimer();
-            firstname = WebService.account.firstName;
-            surname = WebService.account.secondName;
-            email = WebService.account.emailAddress;
+            
 
             userTicketStore = new UserTicketStore();
         }
@@ -137,12 +136,13 @@ namespace csc8208Maui.ViewModels.User
         private async void OnSignOutButtonClicked(object obj)
         {
             //TODO: Code for signing out.
-            await Shell.Current.GoToAsync($"//login");
+            WebService.Logout();
+            SwitchShell.GoToLogin();
         }
 
         private async void OnSettingsButtonClicked(object obj)
         {
-            await Shell.Current.GoToAsync($"user/{nameof(UserSettingsPage)}");
+            await Shell.Current.GoToAsync($"//user/{nameof(UserSettingsPage)}");
         }
 
     }

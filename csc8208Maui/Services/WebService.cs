@@ -30,6 +30,7 @@ using Java.Lang;
 using System.Runtime.Intrinsics.Arm;
 using Android.Service.Controls.Actions;
 using System.ComponentModel;
+using AndroidX.Annotations;
 
 namespace csc8208Maui.Services
 {
@@ -62,6 +63,11 @@ namespace csc8208Maui.Services
 
         static WebService()
         {
+            InitialiseWebService();
+        }
+
+        private static void InitialiseWebService()
+        {
             //Production
             // var handler = new HttpClientHandler();
             // handler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;//In production we would have our certificate signed by a CA
@@ -73,6 +79,9 @@ namespace csc8208Maui.Services
             //----------------------------------------
             //Debug DO NOT USE IN PRODUCTION
             //custom handler ignores SSL error caused by server's self-signed certificate
+            account = null;
+            appSignaturePrivateKey = null;
+            appSignaturePublicKey = null;
             var handler = new HttpClientHandler
             {
                 ServerCertificateCustomValidationCallback = (message, cert, chain, errors) =>
@@ -299,28 +308,10 @@ namespace csc8208Maui.Services
         {
             try
             {
-                var response = client.GetAsync("SignOut").Result;
-                if (response.IsSuccessStatusCode)
-                {
-                    SecureStorage.SetAsync("JWT", null);
-                    SecureStorage.SetAsync("account", null);
-                    SecureStorage.SetAsync("serialisedPublicKeyInfo", null);
-                    SecureStorage.SetAsync("serialisedPrivateKeyInfo", null);
-                    client.Dispose();
-                    client = new HttpClient
-                    {
-                        BaseAddress = new Uri(BaseURL)
-                    };
-                    account = null;
-                    appSignaturePrivateKey = null;
-                    appSignaturePublicKey = null;
-                    return true;
-                }
-                else
-                {
-                    Console.WriteLine("INCORRECT RESPONSE WHILST ATTEMPTING TO SIGN OUT");
-                    return false;
-                }
+                SecureStorage.Default.RemoveAll();
+                //client.Dispose();
+                InitialiseWebService();
+                return true;
             }
             catch
             {

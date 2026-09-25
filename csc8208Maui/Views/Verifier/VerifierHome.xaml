@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="csc8208Maui.Views.Verifier.VerifierHome"
+             xmlns:viewmodel="clr-namespace:csc8208Maui.ViewModels"
+            x:DataType="viewmodel:VerifierViewModel"
+            xmlns:local="clr-namespace:csc8208Maui;assembly=csc8208Maui"
+            xmlns:verifier="clr-namespace:csc8208Maui.Views.Verifier"
+            
+                Title="Today's Events"
+                IconImageSource="icon_scan.png" 
+                Padding="20, 20, 20, 0" 
+                Style="{StaticResource ContentStyle}"
+                
+                >
+                <!--
+                    <Label Text="Todays Events:"
+                        Grid.Row="0"
+                    Margin="0,0,0,10"/> -->
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="{Binding ListViewHeight}"/>
+                    </Grid.RowDefinitions>
+                    
+                    
+                    <CollectionView 
+                        x:Name="ListOfTodaysEvents"
+                        ItemsSource="{Binding TodaysEventsList}" 
+                        SelectedItem="{Binding SelectedEvent, Mode=TwoWay}"
+                        Grid.Row="1"
+                        SelectionMode="Single"
+                        Margin="0,0,0,0">
+                                            
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="local:Models.Event">
+                                <Border 
+                                    Stroke="#022026"
+                                    StrokeThickness="2"
+                                    Margin="0,0,0,10"
+                                    Padding="20">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="20" />
+                                    </Border.StrokeShape>
+                                    <StackLayout>
+                                        <Label Text="{Binding DoorsOpen}"/>
+                                            <StackLayout>
+                                                <StackLayout Orientation="Horizontal">
+                                                    <Label 
+                                                        Text="{Binding Artist}" 
+                                                        TextColor="#F2561D"
+                                                        FontSize="Large"
+                                                        HorizontalOptions="StartAndExpand"/>
+                                                    <Label 
+                                                        Text="{Binding MusicGenre}"
+                                                        TextColor="#F2561D"
+                                                        HorizontalOptions="EndAndExpand"/>
+                                                </StackLayout>
+                                                
+                                                <Label Text="{Binding Location}"/>
+                                                <Label Text="{Binding DoorsOpen}"/>
+                                            </StackLayout>
+                                    </StackLayout>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>           
+                </Grid>
+            </ContentPage>

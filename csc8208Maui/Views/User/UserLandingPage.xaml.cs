@@ -29,7 +29,6 @@ namespace csc8208Maui.Views.User
                 userAccountViewModel.UpdateTickets("OUTSIDE_CALL_TAB");
             }*/
         }
-
         
     }
 }

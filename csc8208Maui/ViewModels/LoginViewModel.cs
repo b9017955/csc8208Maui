@@ -13,73 +13,38 @@ using Microsoft.Maui.Controls.Compatibility;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui;
 using Microsoft.Maui.Storage;
+using CommunityToolkit.Mvvm.ComponentModel;
+using csc8208Maui.Views.Verifier;
+using csc8208Maui.Views.User;
+using Android.Content.Res;
+using csc8208Maui.Lib;
 
 namespace csc8208Maui.ViewModels
 {
-    public class LoginViewModel : BaseViewModel
+    public partial class LoginViewModel : BaseViewModel
     {
         public event PropertyChangedEventHandler PropertyChanged;
+        [ObservableProperty]
         private string username;
-        public string Username
-        {
-            get { return username; }
-            set
-            {
-                username = value;
-                OnPropertyChanged(nameof(Username));
-                UsernameEntryColour = null;
-            }
-        }
-
+        
+        [ObservableProperty]
         private Color usernameEntryColour;
-        public Color UsernameEntryColour 
-        { 
-            get 
-            { 
-                return usernameEntryColour; 
-            }
-            set
-            {
-                usernameEntryColour = value;
-                OnPropertyChanged(nameof(UsernameEntryColour));
-            }
-        }
 
+        [ObservableProperty]
         private string password;
-        public string Password
-        {
-            get { return password; }
-            set
-            {
-                password = value;
-                OnPropertyChanged(nameof(Password));
-                PasswordEntryColour = null;
-            }
-        }
+        
+        [ObservableProperty]
         private Color passwordEntryColour;
-        public Color PasswordEntryColour
-        {
-            get
-            {
-                return passwordEntryColour;
-            }
-            set
-            {
-                passwordEntryColour = value;
-                OnPropertyChanged(nameof(PasswordEntryColour));
-            }
-        }
 
 
         public Command LoginCommand { get; }
         public Command UserLoginCommand { get; }
         public Command RegisterCommand { get; }
         public Command DebugNavigateHomeCommand { get; }
-
+        
         public LoginViewModel()
         {
             LoginCommand = new Command(OnLoginClicked);
-            RegisterCommand = new Command(OnRegisterClicked);
             DebugNavigateHomeCommand = new Command(OnDebugNavigateHomeClicked);
             if (!WebService.CheckConnectionToInternet())
             {
@@ -107,7 +72,7 @@ namespace csc8208Maui.ViewModels
             } */
             
             //===================================
-            DebugLogin();
+            //DebugLogin();
             //===================================
         }
         
@@ -120,49 +85,36 @@ namespace csc8208Maui.ViewModels
 
         private async void OnDebugNavigateHomeClicked(object obj)
         {
-            await Shell.Current.GoToAsync("//user");
+            
+            //await Navigation.PushAsync(new RegistrationPage());
         }
 
         private async void OnLoginClicked(object obj)
         {
-            //WebService.InitialiseNewAppSignature();
-            //Debug code==========
-            /* Console.WriteLine($"Username: {username}, Password: {password}");
-            if (username!=null && username.Equals("user"))
-            {
-                SecureStorage.Remove("tickets");
-                //SecureStorage.SetAsync("DEBUGPUBLICKEY", SecureStorage.GetAsync("serialisedPublicKeyInfo").Result);//for debugging purposes only
-                Console.WriteLine(SecureStorage.GetAsync("DEBUGPUBLICKEY").Result);
-                await Shell.Current.GoToAsync("//user");
-            }
-            else
-            {
-                await Shell.Current.GoToAsync("//verifier");
-            }
-            
-            return; */
-            //====================
-
-            (bool success, string message) loginResult = await WebService.LoginAsync(username, password);
+            (bool success, string message) loginResult = await WebService.LoginAsync(Username, Password);
 
             if (loginResult.success)
             {
                 //WebService.account = WebService.GetAccountInfo();
                 if (WebService.account.verifier)
                 {
-                    await Shell.Current.GoToAsync("//verifier");//Go to verifier landing page
+                    SwitchShell.GoToVerifier();
+                    //await Shell.Current.GoToAsync($"//verifier/{nameof(VerifierLandingPage)}");//Go to verifier landing page
                 }
                 else
                 {
-                    await Shell.Current.GoToAsync("//user");//Go to user landing page
+                    SwitchShell.GoToUser();
+                    //await Shell.Current.GoToAsync($"//user");//Go to user landing page
                 }
+                Username="";
+                Password="";
             }
             else
             {
                 if (loginResult.message.Equals(WebService.invalidCredentialsMessage))
                 {
-                    usernameEntryColour = Colors.Red;
-                    passwordEntryColour = Colors.Red;
+                    UsernameEntryColour = Colors.Red;
+                    PasswordEntryColour = Colors.Red;
                     Console.WriteLine(WebService.invalidCredentialsMessage);
                     //CrossToastPopUp.Current.ShowToastError(WebService.invalidCredentialsMessage);
                 }
@@ -174,9 +126,6 @@ namespace csc8208Maui.ViewModels
             }
         }
 
-        private async void OnRegisterClicked(object obj)
-        {
-            await Shell.Current.GoToAsync($"login/{nameof(RegistrationPage)}");
-        }
+        
     }
 }

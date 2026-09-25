@@ -19,5 +19,9 @@ namespace csc8208Maui.Views
             InitializeComponent();
             this.BindingContext = new LoginViewModel();
         }
+        async void OnRegisterClicked(Object sender, EventArgs args)
+        {
+            await Navigation.PushAsync(new RegistrationPage());
+        }
     }
 }

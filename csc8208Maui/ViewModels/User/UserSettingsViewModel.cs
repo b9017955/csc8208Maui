@@ -5,6 +5,8 @@ using System.Text;
 using Microsoft.Maui.Controls.Compatibility;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui;
+using csc8208Maui.Services;
+using csc8208Maui.Lib;
 
 namespace csc8208Maui.ViewModels
 {
@@ -18,7 +20,8 @@ namespace csc8208Maui.ViewModels
         private async void OnSignOutButtonClicked(object obj)
         {
             //TODO: Code for signing out.
-            await Shell.Current.GoToAsync($"//login");
+            WebService.Logout();
+            SwitchShell.GoToLogin();
         }
     }
 }

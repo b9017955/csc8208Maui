@@ -1,4 +1,5 @@
 ﻿using csc8208Maui.Services;
+using csc8208Maui.Views;
 
 namespace csc8208Maui
 {
@@ -10,7 +11,7 @@ namespace csc8208Maui
 
             DependencyService.Register<MockDataStore>();
             DependencyService.Register<EventStore>();
-            MainPage = new AppShell();
+            MainPage = new NavigationPage(new LoginPage());
         }
     }
 }
